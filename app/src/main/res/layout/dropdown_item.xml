@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="@color/colorPrimary"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingEnd="5dp"
+    android:paddingStart="3dp">
+    <TextView
+        android:id="@+id/tvStory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="TOP"
+        android:textColor="@color/grey_100"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:gravity="start|center_vertical"
+        android:drawableStart="@drawable/ic_top"
+        android:drawablePadding="5dp"/>
+</LinearLayout>

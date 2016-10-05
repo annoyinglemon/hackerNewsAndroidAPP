@@ -1,5 +1,6 @@
 package com.example.lemon.hackernews;
 
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +12,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Lemon on 10/1/2016.
@@ -78,6 +78,10 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
     public void clear(){
         this.newsList.clear();
         notifyDataSetChanged();
+    }
+
+    public boolean isEmpty(){
+        return this.newsList.size() == 0;
     }
 
     String getDateDiff(long newsDate){

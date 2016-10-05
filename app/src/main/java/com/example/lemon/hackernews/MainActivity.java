@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -12,9 +13,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -70,6 +77,56 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem item = menu.findItem(R.id.menu_story);
+
+        //Here, you get access to the view of your item, in this case, the layout of the item has a FrameLayout as root view but you can change it to whatever you use
+        Spinner ddStory = (Spinner)item.getActionView();
+
+        String[] items = new String[] { "Chai Latte", "Green Tea", "Black Tea" };
+
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+//                android.R.layout.simple_spinner_dropdown_item, items);
+
+        ddStory.setAdapter(new BaseAdapter() {
+            @Override
+            public int getCount() {
+                return 3;
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return null;
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View item = LayoutInflater.from(MainActivity.this).inflate(R.layout.dropdown_item, null);
+                TextView tvStory = (TextView) item.findViewById(R.id.tvStory);
+                switch (position){
+                    case 0:
+                        tvStory.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_top,0,0,0);
+                        tvStory.setText("TOP");
+                        break;
+                    case 1:
+                        tvStory.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_new,0,0,0);
+                        tvStory.setText("NEW");
+                        break;
+                    case 2:
+                        tvStory.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_best,0,0,0);
+                        tvStory.setText("BEST");
+                        break;
+                }
+                return item;
+            }
+        });
+        //Then you access to your control by finding it in the rootView
+//        Spinner ddStory = (Spinner) rootView.findViewById(R.id.ddStory);
+        //And from here you can do whatever you want with your control
         return true;
     }
 
@@ -81,7 +138,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.menu_story) {
+
             return true;
         }
 
@@ -95,7 +153,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             tvNoNetwork.setVisibility(View.GONE);
             srlNews.setVisibility(View.GONE);
-            pbNews.setVisibility(View.VISIBLE);
+            if(!srlNews.isRefreshing())
+                pbNews.setVisibility(View.VISIBLE);
             topStoryIds = new ArrayList<>();
             super.onPreExecute();
         }
@@ -118,6 +177,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            if(srlNews.isRefreshing())
+                srlNews.setRefreshing(false);
             if(topStoryIds!=null&&topStoryIds.size()>0) {
                 for(int i=0; i<20; i++){
                     new GetArticle().execute(topStoryIds.get(i));
@@ -160,7 +221,8 @@ public class MainActivity extends AppCompatActivity {
                 srlNews.setVisibility(View.VISIBLE);
             }else{
                 pbNews.setVisibility(View.GONE);
-                tvNoNetwork.setVisibility(View.VISIBLE);
+                if(mAdapter.isEmpty())
+                    tvNoNetwork.setVisibility(View.VISIBLE);
             }
 
         }
