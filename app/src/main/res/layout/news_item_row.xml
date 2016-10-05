@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="12dp"
+    android:layout_marginRight="12dp"
+    app:cardCornerRadius="5dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardElevation="3dp">
+
+    <RelativeLayout
+        android:id="@+id/rvCardCase"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:visibility="visible">
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColorPrimary"
+            android:text="This is a sample story. This is a sample story. This is a sample story"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"/>
+        <View
+            android:id="@+id/line"
+            android:layout_below="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_300"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"/>
+        <LinearLayout
+            android:layout_below="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="6.1"
+            android:gravity="center_horizontal">
+            <TextView
+                android:id="@+id/tvPoints"
+                android:text="71 points by AnnoyingLemon"
+                android:layout_width="0dp"
+                android:layout_weight="3"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:drawableStart="@drawable/ic_points"
+                android:gravity="start|center"
+                android:drawablePadding="3dp"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+            <TextView
+                android:id="@+id/tvTime"
+                android:text="20 hours Ago"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:drawableStart="@drawable/ic_time"
+                android:layout_gravity="end"
+                android:gravity="start|center"
+                android:drawablePadding="3dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                />
+            <TextView
+                android:id="@+id/tvCommentCount"
+                android:text="9999"
+                android:layout_width="0dp"
+                android:layout_weight=".9"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:drawableStart="@drawable/ic_comments"
+                android:layout_gravity="end"
+                android:gravity="start|center"
+                android:drawablePadding="3dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/llLoading"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:paddingTop="15dp">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:indeterminate="true"
+            android:visibility="visible"/>
+
+        <LinearLayout
+            android:id="@+id/llErrorOccurred"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="An error occurred "/>
+            <Button
+                android:id="@+id/bnRetryLoad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Retry"
+                style="@style/AppTheme.Button"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>
