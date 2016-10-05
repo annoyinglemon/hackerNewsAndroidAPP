@@ -116,9 +116,4 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
         }
     }
 
-    public static long daysBetween(Calendar startDate, Calendar endDate) {
-        long end = endDate.getTimeInMillis();
-        long start = startDate.getTimeInMillis();
-        return TimeUnit.MILLISECONDS.toDays(Math.abs(end - start));
-    }
 }
