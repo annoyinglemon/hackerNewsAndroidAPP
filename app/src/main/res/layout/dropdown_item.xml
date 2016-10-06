@@ -4,10 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:background="@color/colorPrimary"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:paddingEnd="5dp"
-    android:paddingStart="3dp">
+    android:paddingTop="11dp"
+    android:paddingBottom="11dp"
+    android:paddingEnd="11dp"
+    android:paddingStart="11dp">
+
     <TextView
         android:id="@+id/tvStory"
         android:layout_width="match_parent"
@@ -19,4 +20,5 @@
         android:gravity="start|center_vertical"
         android:drawableStart="@drawable/ic_top"
         android:drawablePadding="5dp"/>
+
 </LinearLayout>

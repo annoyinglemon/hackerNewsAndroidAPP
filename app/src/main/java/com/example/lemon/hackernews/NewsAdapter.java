@@ -1,10 +1,15 @@
 package com.example.lemon.hackernews;
 
+import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -21,15 +26,23 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
 
     private ArrayList<NewsObject> newsList;
 
-    public NewsAdapter() {
+    private int lastPosition = -1;
+
+    private Context mContext;
+
+    private boolean isLoadedAll = false;
+
+    public NewsAdapter(Context context) {
         this.newsList = new ArrayList<>();
+        this.mContext = context;
     }
 
     public class ItemViewHolder extends RecyclerView.ViewHolder {
         public TextView tvTitle, tvPoints, tvTime, tvCommentCount;
         public RelativeLayout rvCardCase;
-        public LinearLayout llLoading, llErrorOccurred;
+        public LinearLayout llLoading, llErrorOccurred, llDone;
         public ProgressBar progressBar;
+        public Button bnRefresh;
         public ItemViewHolder(View view) {
             super(view);
             rvCardCase = (RelativeLayout) view.findViewById(R.id.rvCardCase);
@@ -40,6 +53,8 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
             llLoading  = (LinearLayout) view.findViewById(R.id.llLoading);
             progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             llErrorOccurred  = (LinearLayout) view.findViewById(R.id.llErrorOccurred);
+            llDone = (LinearLayout) view.findViewById(R.id.llDone);
+            bnRefresh = (Button) view.findViewById(R.id.bnRefresh);
         }
     }
 
@@ -54,14 +69,37 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
         if(position==newsList.size()){
             holder.llLoading.setVisibility(View.VISIBLE);
             holder.rvCardCase.setVisibility(View.GONE);
+            if(isLoadedAll){
+                holder.progressBar.setVisibility(View.GONE);
+                holder.llDone.setVisibility(View.VISIBLE);
+                holder.bnRefresh.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ((MainActivity)((AppCompatActivity) mContext)).refreshNews();
+                    }
+                });
+            }
         }else {
-            holder.llLoading.setVisibility(View.GONE);
             holder.rvCardCase.setVisibility(View.VISIBLE);
+            holder.llLoading.setVisibility(View.GONE);
             NewsObject news = newsList.get(position);
             holder.tvTitle.setText(news.getNewsTitle());
             holder.tvPoints.setText(news.getNewsScore() + " by " + news.getNewsAuthor());
             holder.tvCommentCount.setText(news.getCommentCount()+"");
             holder.tvTime.setText(getDateDiff(news.getCreationDate()));
+            setAnimation(holder.rvCardCase, position);
+        }
+
+    }
+
+    private void setAnimation(View viewToAnimate, int position)
+    {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition)
+        {
+            Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
         }
     }
 
@@ -72,13 +110,21 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
 
     public void addNews(NewsObject newsObject){
         this.newsList.add(newsObject);
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
+        notifyItemInserted(this.newsList.size() - 1);
     }
 
     public void clear(){
         this.newsList.clear();
         notifyDataSetChanged();
     }
+
+    public void setLoadedAll(boolean loadedAll) {
+        isLoadedAll = loadedAll;
+        notifyItemChanged(newsList.size()+1);
+    }
+
+
 
     public boolean isEmpty(){
         return this.newsList.size() == 0;
