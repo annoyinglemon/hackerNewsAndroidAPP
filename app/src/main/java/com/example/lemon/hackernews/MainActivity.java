@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -27,6 +28,9 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TOP_STORIES = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
+    private static final String NEW_STORIES = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
+    private static final String BEST_STORIES = "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
+
     private ArrayList<Long> topStoryIds;
     /**
      * code of last loaded story
@@ -48,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
      * for checking if all articles are loaded
      */
     private boolean isDoneLoadingAll = false;
+    /**
+     *  variable for storing which type of story should display
+     */
+    private String storyType = TOP_STORIES;
+
     private SwipeRefreshLayout srlNews;
     private RecyclerView rvNews;
     private NewsAdapter mAdapter = new NewsAdapter(this);
@@ -91,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
 
                     if (!mIsLoadingArticle && !isDoneLoadingAll) {
                         if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                            new GetNewsList().execute(TOP_STORIES);
+                            new GetNewsList().execute(storyType);
                         }
                     }
                 }
             }
         });
-        new GetNewsList().execute(TOP_STORIES);
+        new GetNewsList().execute(storyType);
     }
 
     @Override
@@ -145,10 +154,34 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return item;
             }
+
         });
-        //Then you access to your control by finding it in the rootView
-//        Spinner ddStory = (Spinner) rootView.findViewById(R.id.ddStory);
-        //And from here you can do whatever you want with your control
+        ddStory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String chosenString = TOP_STORIES;
+                switch (position){
+                    case 0:
+                        chosenString = TOP_STORIES;
+                        break;
+                    case 1:
+                        chosenString = NEW_STORIES;
+                        break;
+                    case 2:
+                        chosenString = BEST_STORIES;
+                        break;
+                }
+                if(!chosenString.equalsIgnoreCase(storyType))
+                    refreshNews();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
         return true;
     }
 
@@ -176,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
         loadedStoryIndex = 0;
         mIsLoadingArticle = false;
         isDoneLoadingAll = false;
-        new GetNewsList().execute(TOP_STORIES);
+        new GetNewsList().execute(storyType);
     }
 
     class GetNewsList extends AsyncTask<String, Void, Void> {
