@@ -13,7 +13,7 @@
         android:id="@+id/tvStory"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="TOP"
+        android:text="FUCK YOU"
         android:textColor="@color/grey_100"
         android:textStyle="bold"
         android:textSize="18sp"

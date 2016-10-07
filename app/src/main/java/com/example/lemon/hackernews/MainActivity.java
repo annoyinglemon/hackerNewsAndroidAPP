@@ -1,23 +1,35 @@
 package com.example.lemon.hackernews;
 
+import android.annotation.SuppressLint;
+import android.app.Fragment;
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.BoolRes;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +40,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WebViewFragment.OnFragmentInteractionListener {
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 
     private static final String TOP_STORIES = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
     private static final String NEW_STORIES = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
@@ -56,9 +73,11 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean isDoneLoadingAll = false;
     /**
-     *  variable for storing which type of story should display
+     * variable for storing which type of story should display
      */
     private String storyType = TOP_STORIES;
+
+    boolean isAnAricleClicked = false;
 
     private SwipeRefreshLayout srlNews;
     private RecyclerView rvNews;
@@ -66,21 +85,56 @@ public class MainActivity extends AppCompatActivity {
     private ContentLoadingProgressBar pbNews;
     private TextView tvNoNetwork;
     private LinearLayoutManager mLayoutManager;
-
+    private BottomSheetBehavior bottomSheetBehavior;
+    private FrameLayout bottom_sheet;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_hacker_news);
         getSupportActionBar().setTitle("  Hacker News");
         srlNews = (SwipeRefreshLayout) findViewById(R.id.srlNews);
         rvNews = (RecyclerView) findViewById(R.id.rvNews);
         pbNews = (ContentLoadingProgressBar) findViewById(R.id.pbNews);
         tvNoNetwork = (TextView) findViewById(R.id.tvNoNetwork);
+        bottom_sheet = (FrameLayout) findViewById(R.id.bottom_sheet);
+
+        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet));
+        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                WebViewFragment webViewFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.bottom_sheet);
+                switch (newState) {
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        isAnAricleClicked = true;
+                        bottomSheetBehavior.setHideable(false);
+                        TypedValue tv = new TypedValue();
+                        bottomSheetBehavior.setPeekHeight(getSupportActionBar().getHeight() + getSoftButtonsBarHeight());
+                        if(webViewFragment!=null) {
+                            webViewFragment.replaceMenu(R.menu.menu_down);
+                        }
+                        break;
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        if(webViewFragment!=null) {
+                            webViewFragment.replaceMenu(R.menu.menu_up);
+                        }
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
 
         srlNews.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -95,8 +149,16 @@ public class MainActivity extends AppCompatActivity {
         rvNews.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dy > 0) //check for scroll down
-                {
+//                if(isAnAricleClicked) {
+//                    //scroll up
+//                    if (dy < 0) {
+//                        bottomSheetBehavior.setPeekHeight(toolbar.getMeasuredHeight() + 55);
+//                    }else{
+//                        bottomSheetBehavior.setPeekHeight(0);
+//                    }
+//                }
+
+                if (dy > 0){ //check for scroll down
                     int visibleItemCount = mLayoutManager.getChildCount();
                     int totalItemCount = mLayoutManager.getItemCount();
                     int pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
@@ -113,7 +175,10 @@ public class MainActivity extends AppCompatActivity {
         rvNews.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), rvNews, new MainActivity.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Toast.makeText(MainActivity.this, "Position: " + position, Toast.LENGTH_SHORT).show();
+                expandFragment();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.bottom_sheet,  WebViewFragment.newInstance(mAdapter.getNews(position)));
+                ft.commit();
             }
 
             @Override
@@ -124,6 +189,22 @@ public class MainActivity extends AppCompatActivity {
         }));
 
         new GetNewsList().execute(storyType);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            collapseFragment();
+        } else
+            super.onBackPressed();
+    }
+
+    public void collapseFragment(){
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    public void expandFragment(){
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     @Override
@@ -177,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String chosenString = TOP_STORIES;
-                switch (position){
+                switch (position) {
                     case 0:
                         chosenString = TOP_STORIES;
                         break;
@@ -188,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
                         chosenString = BEST_STORIES;
                         break;
                 }
-                if(!chosenString.equalsIgnoreCase(storyType))
+                if (!chosenString.equalsIgnoreCase(storyType))
                     refreshNews();
             }
 
@@ -218,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void refreshNews(){
+    public void refreshNews() {
         mAdapter.clear();
         topStoryIds = null;
         lastLoadedStoryCode = null;
@@ -227,6 +308,30 @@ public class MainActivity extends AppCompatActivity {
         mIsLoadingArticle = false;
         isDoneLoadingAll = false;
         new GetNewsList().execute(storyType);
+    }
+
+    @SuppressLint("NewApi")
+    private int getSoftButtonsBarHeight() {
+        // getRealMetrics is only available with API 17 and +
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+//            DisplayMetrics metrics = new DisplayMetrics();
+//            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//            int usableHeight = metrics.heightPixels;
+//            getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+//            int realHeight = metrics.heightPixels;
+//            if (realHeight > usableHeight)
+//                return realHeight - usableHeight;
+//            else
+//                return 0;
+//        }
+//        return 0;
+        boolean hasMenuKey = ViewConfiguration.get(this).hasPermanentMenuKey();
+        int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0 && !hasMenuKey)
+        {
+            return getResources().getDimensionPixelSize(resourceId);
+        }
+        return 0;
     }
 
     class GetNewsList extends AsyncTask<String, Void, Void> {

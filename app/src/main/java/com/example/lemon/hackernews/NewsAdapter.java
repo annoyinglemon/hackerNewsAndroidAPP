@@ -114,6 +114,10 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
         notifyItemInserted(this.newsList.size() - 1);
     }
 
+    public NewsObject getNews(int position){
+        return this.newsList.get(position);
+    }
+
     public void clear(){
         this.newsList.clear();
         notifyDataSetChanged();
