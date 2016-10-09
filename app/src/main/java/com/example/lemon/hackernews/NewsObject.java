@@ -1,10 +1,12 @@
 package com.example.lemon.hackernews;
 
+import java.io.Serializable;
+
 /**
  * Created by Lemon on 10/1/2016.
  */
 
-public class NewsObject {
+public class NewsObject implements Serializable{
 
     private long newsID;
     private String newsURL;

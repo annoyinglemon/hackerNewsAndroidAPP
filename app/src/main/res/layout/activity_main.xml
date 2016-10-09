@@ -10,7 +10,8 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:id="@+id/abl">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -22,5 +23,24 @@
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_main" />
+
+    <FrameLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:elevation="@dimen/design_bottom_sheet_modal_elevation"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
+        android:fitsSystemWindows="true"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+        <!--<fragment-->
+            <!--android:name="com.example.lemon.hackernews.WebViewFragment"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent" />-->
+
+    </FrameLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>
