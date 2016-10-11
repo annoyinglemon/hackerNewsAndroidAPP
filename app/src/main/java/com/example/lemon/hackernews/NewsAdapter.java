@@ -2,7 +2,6 @@ package com.example.lemon.hackernews;
 
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -97,7 +96,7 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition)
         {
-            Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+            Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.slide_up);
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }
@@ -115,7 +114,10 @@ public class NewsAdapter extends  RecyclerView.Adapter<NewsAdapter.ItemViewHolde
     }
 
     public NewsObject getNews(int position){
-        return this.newsList.get(position);
+        if(position<this.newsList.size())
+            return this.newsList.get(position);
+        else
+            return null;
     }
 
     public void clear(){
