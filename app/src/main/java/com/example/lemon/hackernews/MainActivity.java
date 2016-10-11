@@ -1,13 +1,10 @@
 package com.example.lemon.hackernews;
 
 import android.annotation.SuppressLint;
-import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.BoolRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.FragmentTransaction;
@@ -17,8 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,12 +22,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
     boolean isAnAricleClicked = false;
 
+    private WebViewFragment mFragment;
+
     private SwipeRefreshLayout srlNews;
     private RecyclerView rvNews;
     private NewsAdapter mAdapter = new NewsAdapter(this);
@@ -87,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     private LinearLayoutManager mLayoutManager;
     private BottomSheetBehavior bottomSheetBehavior;
     private FrameLayout bottom_sheet;
+    private Animation slide_in, slide_out;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +103,36 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         pbNews = (ContentLoadingProgressBar) findViewById(R.id.pbNews);
         tvNoNetwork = (TextView) findViewById(R.id.tvNoNetwork);
         bottom_sheet = (FrameLayout) findViewById(R.id.bottom_sheet);
+        slide_in = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_up);
+        slide_in.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
 
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                bottom_sheet.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        slide_out = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_down);
+        slide_out.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                bottom_sheet.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet));
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -112,14 +142,13 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                     case BottomSheetBehavior.STATE_EXPANDED:
                         isAnAricleClicked = true;
                         bottomSheetBehavior.setHideable(false);
-                        TypedValue tv = new TypedValue();
                         bottomSheetBehavior.setPeekHeight(getSupportActionBar().getHeight() + getSoftButtonsBarHeight());
-                        if(webViewFragment!=null) {
+                        if (webViewFragment != null) {
                             webViewFragment.replaceMenu(R.menu.menu_down);
                         }
                         break;
                     case BottomSheetBehavior.STATE_COLLAPSED:
-                        if(webViewFragment!=null) {
+                        if (webViewFragment != null) {
                             webViewFragment.replaceMenu(R.menu.menu_up);
                         }
                         break;
@@ -149,16 +178,15 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         rvNews.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                if(isAnAricleClicked) {
+//                if (isAnAricleClicked) {
 //                    //scroll up
 //                    if (dy < 0) {
-//                        bottomSheetBehavior.setPeekHeight(toolbar.getMeasuredHeight() + 55);
-//                    }else{
-//                        bottomSheetBehavior.setPeekHeight(0);
+//
+//                    } else {
+//
 //                    }
 //                }
-
-                if (dy > 0){ //check for scroll down
+                if (dy > 0) { //check for scroll down
                     int visibleItemCount = mLayoutManager.getChildCount();
                     int totalItemCount = mLayoutManager.getItemCount();
                     int pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
@@ -168,22 +196,48 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                             new GetNewsList().execute(storyType);
                         }
                     }
+                    if (((visibleItemCount + pastVisiblesItems) >= totalItemCount)&&isAnAricleClicked&&isDoneLoadingAll) {
+                        bottom_sheet.startAnimation(slide_out);
+                    }
                 }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if(recyclerView.getScrollState()==RecyclerView.SCROLL_STATE_DRAGGING){
+                    if (isAnAricleClicked) {
+                        if (bottom_sheet.getVisibility() == View.VISIBLE) {
+                            bottom_sheet.startAnimation(slide_out);
+                        }
+                    }
+                }else if(recyclerView.getScrollState()==RecyclerView.SCROLL_STATE_IDLE){
+                    if (isAnAricleClicked) {
+                        if (bottom_sheet.getVisibility() == View.GONE) {
+                            bottom_sheet.startAnimation(slide_in);
+                        }
+                    }
+                }
+                super.onScrollStateChanged(recyclerView, newState);
             }
         });
 
         rvNews.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), rvNews, new MainActivity.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                expandFragment();
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.bottom_sheet,  WebViewFragment.newInstance(mAdapter.getNews(position)));
-                ft.commit();
+                if (mAdapter.getNews(position) != null) {
+                    isAnAricleClicked = true;
+                    expandFragment();
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    mFragment = WebViewFragment.newInstance(mAdapter.getNews(position));
+                    ft.replace(R.id.bottom_sheet, mFragment);
+                    ft.commit();
+                }
+
             }
 
             @Override
             public void onLongClick(View view, int position) {
-                Toast.makeText(MainActivity.this, "Long click, Position: " + position, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "Long click, Position: " + position, Toast.LENGTH_SHORT).show();
 
             }
         }));
@@ -193,17 +247,17 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
     @Override
     public void onBackPressed() {
-        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            collapseFragment();
+        if (bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED||bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_SETTLING) {
+           collapseFragment();
         } else
             super.onBackPressed();
     }
 
-    public void collapseFragment(){
+    public void collapseFragment() {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
-    public void expandFragment(){
+    public void expandFragment() {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
@@ -307,6 +361,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         loadedStoryIndex = 0;
         mIsLoadingArticle = false;
         isDoneLoadingAll = false;
+        mAdapter.setLoadedAll(false);
+
         new GetNewsList().execute(storyType);
     }
 
@@ -327,8 +383,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 //        return 0;
         boolean hasMenuKey = ViewConfiguration.get(this).hasPermanentMenuKey();
         int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0 && !hasMenuKey)
-        {
+        if (resourceId > 0 && !hasMenuKey) {
             return getResources().getDimensionPixelSize(resourceId);
         }
         return 0;
@@ -343,8 +398,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             if (topStoryIds == null) {
                 srlNews.setVisibility(View.GONE);
                 pbNews.setVisibility(View.VISIBLE);
+                topStoryIds = new ArrayList<>();
             }
-            topStoryIds = new ArrayList<>();
             mIsLoadingArticle = true;
             super.onPreExecute();
         }
@@ -353,16 +408,18 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         protected Void doInBackground(String... urls) {
             if (topStoryIds.size() == 0) {
                 try {
-                    JSONArray jsonArray = new JSONArray(HttpHandler.makeServiceCall(urls[0]));
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        topStoryIds.add(jsonArray.getLong(i));
+                    if (topStoryIds != null && topStoryIds.size() == 0) {
+                        JSONArray jsonArray = new JSONArray(HttpHandler.makeServiceCall(urls[0]));
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            topStoryIds.add(jsonArray.getLong(i));
+                        }
+                        /**
+                         * below commented code is for test only
+                         */
+//                        for (int i = 0; i < 45; i++) {
+//                            topStoryIds.add(jsonArray.getLong(i));
+//                        }
                     }
-                    /**
-                     * below commented code is for test only
-                     */
-//                    for (int i = 0; i < 35; i++) {
-//                        topStoryIds.add(jsonArray.getLong(i));
-//                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -398,7 +455,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                         }
                     }
                 }
-//                }
                 if (lastLoadedStoryCode.floatValue() == lastUnLoadedStoryCode.floatValue()) {
                     mIsLoadingArticle = false;
                 }

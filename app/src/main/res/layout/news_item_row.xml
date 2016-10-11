@@ -104,14 +104,15 @@
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="16dp"
-        android:paddingTop="15dp"
+        android:paddingTop="16dp"
         android:visibility="visible">
 
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminate="true" />
+            android:indeterminate="true"
+            android:visibility="visible"/>
 
         <LinearLayout
             android:id="@+id/llDone"

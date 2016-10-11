@@ -7,4 +7,20 @@
         android:icon="@drawable/ic_up"
         app:showAsAction="always"
         android:title="Expand"/>
+    <item android:id="@+id/action_save"
+        android:icon="@drawable/ic_save"
+        app:showAsAction="always"
+        android:title="Save"/>
+    <item android:id="@+id/action_share"
+        android:icon="@drawable/ic_share"
+        app:showAsAction="ifRoom"
+        android:title="Share"/>
+    <item android:id="@+id/action_copy"
+        android:icon="@drawable/ic_copy_link"
+        app:showAsAction="ifRoom"
+        android:title="Copy URL"/>
+    <item android:id="@+id/action_open"
+        android:icon="@drawable/ic_globe"
+        app:showAsAction="ifRoom"
+        android:title="Open with.."/>
 </menu>

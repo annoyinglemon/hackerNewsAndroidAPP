@@ -1,8 +1,12 @@
 package com.example.lemon.hackernews;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -17,6 +21,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -76,9 +82,20 @@ public class WebViewFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_web_view, container, false);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        toolbar.setTitle(mArticle.getNewsTitle());
-        toolbar.setTitleTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
-        toolbar.setSubtitleTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+
+//        toolbar.setTitle(mArticle.getNewsTitle());
+//        Uri uri = Uri.parse(mArticle.getNewsURL());
+//        toolbar.setSubtitle(uri.getAuthority());
+//        toolbar.setTitleTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+//        toolbar.setSubtitleTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+        LayoutInflater mInflater = LayoutInflater.from(getContext());
+        View mCustomView = mInflater.inflate(R.layout.article_title_view, null);
+        TextView tvArticleTitle = (TextView) mCustomView.findViewById(R.id.tvArticleTitle);
+        tvArticleTitle.setText(mArticle.getNewsTitle());
+        TextView tvArticleURL = (TextView) mCustomView.findViewById(R.id.tvArticleURL);
+        tvArticleURL.setText(Uri.parse(mArticle.getNewsURL()).getAuthority());
+        toolbar.removeAllViews();
+        toolbar.addView(mCustomView);
         toolbar.inflateMenu(R.menu.menu_down);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -94,12 +111,32 @@ public class WebViewFragment extends Fragment {
                         toolbar.inflateMenu(R.menu.menu_down);
                         ((MainActivity) getContext()).expandFragment();
                         return true;
+                    case R.id.action_share:
+                        Intent share = new Intent(android.content.Intent.ACTION_SEND);
+                        share.setType("text/plain");
+                        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
+                            share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                        else
+                            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                        share.putExtra(Intent.EXTRA_SUBJECT, mArticle.getNewsTitle());
+                        share.putExtra(Intent.EXTRA_TEXT, mArticle.getNewsURL());
+                        startActivity(Intent.createChooser(share, "Share this Link"));
+                        return true;
+                    case R.id.action_copy:
+                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("URL", mArticle.getNewsURL());
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(getContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.action_open:
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com")));
+                        return true;
                 }
                 return false;
             }
         });
-        Uri uri = Uri.parse(mArticle.getNewsURL());
-        toolbar.setSubtitle(uri.getAuthority());
+
+
 
         wVArticle = (WebView) view.findViewById(R.id.wVArticle);
         pbWebArticle = (ProgressBar) view.findViewById(R.id.pbWebArticle);
