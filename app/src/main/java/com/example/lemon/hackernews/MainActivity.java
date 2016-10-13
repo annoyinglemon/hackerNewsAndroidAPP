@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                             new GetNewsList().execute(storyType);
                         }
                     }
-                    if (((visibleItemCount + pastVisiblesItems) >= totalItemCount)&&isAnAricleClicked&&isDoneLoadingAll) {
+                    if (((visibleItemCount + pastVisiblesItems) >= totalItemCount) && isAnAricleClicked && isDoneLoadingAll) {
                         bottom_sheet.startAnimation(slide_out);
                     }
                 }
@@ -204,13 +204,13 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if(recyclerView.getScrollState()==RecyclerView.SCROLL_STATE_DRAGGING){
+                if (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING) {
                     if (isAnAricleClicked) {
                         if (bottom_sheet.getVisibility() == View.VISIBLE) {
                             bottom_sheet.startAnimation(slide_out);
                         }
                     }
-                }else if(recyclerView.getScrollState()==RecyclerView.SCROLL_STATE_IDLE){
+                } else if (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
                     if (isAnAricleClicked) {
                         if (bottom_sheet.getVisibility() == View.GONE) {
                             bottom_sheet.startAnimation(slide_in);
@@ -221,34 +221,25 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             }
         });
 
-        rvNews.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), rvNews, new MainActivity.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                if (mAdapter.getNews(position) != null) {
-                    isAnAricleClicked = true;
-                    expandFragment();
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    mFragment = WebViewFragment.newInstance(mAdapter.getNews(position));
-                    ft.replace(R.id.bottom_sheet, mFragment);
-                    ft.commit();
-                }
-
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-//                Toast.makeText(MainActivity.this, "Long click, Position: " + position, Toast.LENGTH_SHORT).show();
-
-            }
-        }));
 
         new GetNewsList().execute(storyType);
     }
 
+    public void openNewsArticle(int position) {
+        if (mAdapter.getNews(position) != null) {
+            isAnAricleClicked = true;
+            expandFragment();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            mFragment = WebViewFragment.newInstance(mAdapter.getNews(position));
+            ft.replace(R.id.bottom_sheet, mFragment);
+            ft.commit();
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        if (bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED||bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_SETTLING) {
-           collapseFragment();
+        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_SETTLING) {
+            collapseFragment();
         } else
             super.onBackPressed();
     }
@@ -368,19 +359,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
     @SuppressLint("NewApi")
     private int getSoftButtonsBarHeight() {
-        // getRealMetrics is only available with API 17 and +
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-//            DisplayMetrics metrics = new DisplayMetrics();
-//            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-//            int usableHeight = metrics.heightPixels;
-//            getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
-//            int realHeight = metrics.heightPixels;
-//            if (realHeight > usableHeight)
-//                return realHeight - usableHeight;
-//            else
-//                return 0;
-//        }
-//        return 0;
         boolean hasMenuKey = ViewConfiguration.get(this).hasPermanentMenuKey();
         int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
         if (resourceId > 0 && !hasMenuKey) {
@@ -390,7 +368,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     }
 
     class GetNewsList extends AsyncTask<String, Void, Void> {
-
 
         @Override
         protected void onPreExecute() {
@@ -480,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             try {
                 String articleURL = "https://hacker-news.firebaseio.com/v0/item/" + params[0] + ".json?print=pretty";
                 JSONObject jsonObject = new JSONObject(HttpHandler.makeServiceCall(articleURL));
-                return new NewsObject(jsonObject.getLong("id"), jsonObject.getString("title"), jsonObject.getString("url"), jsonObject.getString("by"), jsonObject.getInt("score"), jsonObject.getInt("descendants"), jsonObject.getLong("time"));
+                return new NewsObject(jsonObject.getLong("id"), jsonObject.getString("title"), jsonObject.getString("url"), jsonObject.getString("by"), jsonObject.getInt("score"), jsonObject.getLong("time"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

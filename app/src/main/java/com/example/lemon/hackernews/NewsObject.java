@@ -13,25 +13,22 @@ public class NewsObject implements Serializable{
     private String newsTitle;
     private String newsAuthor;
     private int newsScore;
-    private int commentCount;
     private long creationDate;
 
-    public NewsObject(long newsID, String newsTitle, String newsURL, String newsAuthor, int newsScore, int commentCount, long creationDate) {
+    public NewsObject(long newsID, String newsTitle, String newsURL, String newsAuthor, int newsScore, long creationDate) {
         this.newsID = newsID;
         this.newsTitle = newsTitle;
         this.newsURL = newsURL;
         this.newsAuthor = newsAuthor;
         this.newsScore = newsScore;
-        this.commentCount = commentCount;
         this.creationDate = creationDate;
     }
 
-    public NewsObject(String newsTitle, String newsURL, String newsAuthor, int newsScore, int commentCount, long creationDate) {
+    public NewsObject(String newsTitle, String newsURL, String newsAuthor, int newsScore, long creationDate) {
         this.newsTitle = newsTitle;
         this.newsURL = newsURL;
         this.newsAuthor = newsAuthor;
         this.newsScore = newsScore;
-        this.commentCount = commentCount;
         this.creationDate = creationDate;
     }
 
@@ -73,14 +70,6 @@ public class NewsObject implements Serializable{
 
     public void setNewsScore(int newsScore) {
         this.newsScore = newsScore;
-    }
-
-    public int getCommentCount() {
-        return commentCount;
-    }
-
-    public void setCommentCount(int commentCount) {
-        this.commentCount = commentCount;
     }
 
     public long getCreationDate() {

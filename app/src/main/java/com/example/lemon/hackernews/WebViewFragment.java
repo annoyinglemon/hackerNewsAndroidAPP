@@ -129,7 +129,7 @@ public class WebViewFragment extends Fragment {
                         Toast.makeText(getContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.action_open:
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com")));
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mArticle.getNewsURL())));
                         return true;
                 }
                 return false;
@@ -139,6 +139,7 @@ public class WebViewFragment extends Fragment {
 
 
         wVArticle = (WebView) view.findViewById(R.id.wVArticle);
+
         pbWebArticle = (ProgressBar) view.findViewById(R.id.pbWebArticle);
 
         wVArticle.getSettings().setJavaScriptEnabled(true);

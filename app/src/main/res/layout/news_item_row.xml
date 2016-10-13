@@ -21,7 +21,7 @@
         android:paddingTop="8dp"
         android:clickable="true"
         android:background="?selectableItemBackground"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <TextView
             android:id="@+id/tvTitle"
@@ -51,7 +51,8 @@
             android:layout_below="@+id/line"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
-            android:weightSum="6.1">
+            android:weightSum="6.1"
+            android:paddingTop="2dp">
 
             <TextView
                 android:id="@+id/tvPoints"
@@ -81,18 +82,17 @@
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tvCommentCount"
+                android:id="@+id/tvMenu"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_weight=".9"
-                android:drawablePadding="3dp"
-                android:drawableStart="@drawable/ic_comments"
+                android:drawableEnd="@drawable/ic_menu"
                 android:ellipsize="end"
                 android:gravity="start|center"
                 android:maxLines="1"
-                android:text="999"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:background="?selectableItemBackground"/>
         </LinearLayout>
 
     </RelativeLayout>
