@@ -14,6 +14,10 @@ public class NewsObject implements Serializable{
     private String newsAuthor;
     private int newsScore;
     private long creationDate;
+    private String localPath;
+
+    public NewsObject() {
+    }
 
     public NewsObject(long newsID, String newsTitle, String newsURL, String newsAuthor, int newsScore, long creationDate) {
         this.newsID = newsID;
@@ -30,6 +34,16 @@ public class NewsObject implements Serializable{
         this.newsAuthor = newsAuthor;
         this.newsScore = newsScore;
         this.creationDate = creationDate;
+    }
+
+    public NewsObject(long newsID, String newsURL, String newsTitle, String newsAuthor, int newsScore, long creationDate, String localPath) {
+        this.newsID = newsID;
+        this.newsURL = newsURL;
+        this.newsTitle = newsTitle;
+        this.newsAuthor = newsAuthor;
+        this.newsScore = newsScore;
+        this.creationDate = creationDate;
+        this.localPath = localPath;
     }
 
     public long getNewsID() {
@@ -78,5 +92,13 @@ public class NewsObject implements Serializable{
 
     public void setCreationDate(long creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
     }
 }

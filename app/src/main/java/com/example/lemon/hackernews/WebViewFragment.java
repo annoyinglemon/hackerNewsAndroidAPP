@@ -24,6 +24,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -101,6 +103,20 @@ public class WebViewFragment extends Fragment {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
+                    case R.id.action_save:
+                        DatabaseAdapter databaseAdapter = new DatabaseAdapter(getContext());
+                        if(databaseAdapter.getNews(mArticle.getNewsID())==null) {
+                            if (saveAsHTML()) {
+                                mArticle.setLocalPath(getContext().getApplicationInfo().dataDir + File.separator + "saved_articles" + File.separator + mArticle.getNewsID() + ".mht");
+                                if (databaseAdapter.insertIntoActualExpenses(mArticle) > -1) {
+                                    Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " is successfully saved.", Toast.LENGTH_SHORT).show();
+                                }
+                            } else
+                                Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " is not successfully saved.", Toast.LENGTH_SHORT).show();
+                        }else {
+                            Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " already exists.", Toast.LENGTH_SHORT).show();
+                        }
+                        return true;
                     case R.id.action_down:
                         toolbar.getMenu().clear();
                         toolbar.inflateMenu(R.menu.menu_up);
@@ -174,11 +190,17 @@ public class WebViewFragment extends Fragment {
     }
 
     public void replaceMenu(int menuRes) {
-
         toolbar.getMenu().clear();
         toolbar.inflateMenu(menuRes);
+    }
 
 
+    public boolean saveAsHTML(){
+        File dataDir = new File(getContext().getApplicationInfo().dataDir+ File.separator +"saved_articles");
+        dataDir.mkdirs();
+        File mhtml = new File(dataDir, mArticle.getNewsID()+".mht");
+        wVArticle.saveWebArchive(mhtml.getAbsolutePath());
+        return mhtml.exists();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

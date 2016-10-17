@@ -84,7 +84,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                 holder.bnRefresh.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((MainActivity) ((AppCompatActivity) mContext)).refreshNews();
+                        ((MainActivity) mContext).refreshNews();
                     }
                 });
             }
@@ -112,6 +112,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
+//
                                 case R.id.action_share:
                                     Intent share = new Intent(android.content.Intent.ACTION_SEND);
                                     share.setType("text/plain");
@@ -121,7 +122,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                                         share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                                     share.putExtra(Intent.EXTRA_SUBJECT, newsList.get(holder.getAdapterPosition()).getNewsTitle());
                                     share.putExtra(Intent.EXTRA_TEXT, newsList.get(holder.getAdapterPosition()).getNewsURL());
-                                    mContext.startActivity(Intent.createChooser(share, "Share this Link"));
+                                    mContext.startActivity(Intent.createChooser(share, "Share"));
                                     return true;
                                 case R.id.action_copy:
                                     ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);

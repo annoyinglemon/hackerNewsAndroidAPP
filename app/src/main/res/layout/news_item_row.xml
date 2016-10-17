@@ -15,12 +15,11 @@
         android:id="@+id/rvCardCase"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="8dp"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
         android:paddingEnd="10dp"
         android:paddingStart="10dp"
         android:paddingTop="8dp"
-        android:clickable="true"
-        android:background="?selectableItemBackground"
         android:visibility="visible">
 
         <TextView
@@ -51,8 +50,8 @@
             android:layout_below="@+id/line"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
-            android:weightSum="6.1"
-            android:paddingTop="2dp">
+            android:paddingTop="2dp"
+            android:weightSum="6.1">
 
             <TextView
                 android:id="@+id/tvPoints"
@@ -64,6 +63,7 @@
                 android:ellipsize="end"
                 android:gravity="start|center"
                 android:maxLines="1"
+                android:paddingBottom="8dp"
                 android:text="71 points by AnnoyingLemon"
                 android:textSize="12sp" />
 
@@ -78,6 +78,7 @@
                 android:ellipsize="end"
                 android:gravity="start|center"
                 android:maxLines="1"
+                android:paddingBottom="8dp"
                 android:text="20 hours Ago"
                 android:textSize="12sp" />
 
@@ -91,8 +92,8 @@
                 android:ellipsize="end"
                 android:gravity="start|center"
                 android:maxLines="1"
-                android:textSize="12sp"
-                android:background="?selectableItemBackground"/>
+                android:paddingBottom="10dp"
+                android:textSize="12sp" />
         </LinearLayout>
 
     </RelativeLayout>
@@ -112,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:visibility="visible"/>
+            android:visibility="visible" />
 
         <LinearLayout
             android:id="@+id/llDone"
@@ -128,10 +129,10 @@
 
             <Button
                 android:id="@+id/bnRefresh"
-                android:theme="@style/AppTheme.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Refresh" />
+                android:text="Refresh"
+                android:theme="@style/AppTheme.Button" />
 
         </LinearLayout>
 
@@ -149,10 +150,10 @@
 
             <Button
                 android:id="@+id/bnRetryLoad"
-                android:theme="@style/AppTheme.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Retry" />
+                android:text="Retry"
+                android:theme="@style/AppTheme.Button" />
         </LinearLayout>
     </LinearLayout>
 
