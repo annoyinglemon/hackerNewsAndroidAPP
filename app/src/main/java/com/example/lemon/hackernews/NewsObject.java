@@ -36,7 +36,7 @@ public class NewsObject implements Serializable{
         this.creationDate = creationDate;
     }
 
-    public NewsObject(long newsID, String newsURL, String newsTitle, String newsAuthor, int newsScore, long creationDate, String localPath) {
+    public NewsObject(long newsID, String newsTitle, String newsURL,  String newsAuthor, int newsScore, long creationDate, String localPath) {
         this.newsID = newsID;
         this.newsURL = newsURL;
         this.newsTitle = newsTitle;

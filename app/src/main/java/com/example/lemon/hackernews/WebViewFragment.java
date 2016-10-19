@@ -105,7 +105,7 @@ public class WebViewFragment extends Fragment {
                 switch (item.getItemId()) {
                     case R.id.action_save:
                         DatabaseAdapter databaseAdapter = new DatabaseAdapter(getContext());
-                        if(databaseAdapter.getNews(mArticle.getNewsID())==null) {
+                        if (databaseAdapter.getNews(mArticle.getNewsID()) == null) {
                             if (saveAsHTML()) {
                                 mArticle.setLocalPath(getContext().getApplicationInfo().dataDir + File.separator + "saved_articles" + File.separator + mArticle.getNewsID() + ".mht");
                                 if (databaseAdapter.insertIntoActualExpenses(mArticle) > -1) {
@@ -113,7 +113,7 @@ public class WebViewFragment extends Fragment {
                                 }
                             } else
                                 Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " is not successfully saved.", Toast.LENGTH_SHORT).show();
-                        }else {
+                        } else {
                             Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " already exists.", Toast.LENGTH_SHORT).show();
                         }
                         return true;
@@ -130,7 +130,7 @@ public class WebViewFragment extends Fragment {
                     case R.id.action_share:
                         Intent share = new Intent(android.content.Intent.ACTION_SEND);
                         share.setType("text/plain");
-                        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                             share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
                         else
                             share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -151,7 +151,6 @@ public class WebViewFragment extends Fragment {
                 return false;
             }
         });
-
 
 
         wVArticle = (WebView) view.findViewById(R.id.wVArticle);
@@ -175,7 +174,10 @@ public class WebViewFragment extends Fragment {
             }
         });
         wVArticle.setWebViewClient(new MyWebViewClient());
-        wVArticle.loadUrl(mArticle.getNewsURL());
+        if (mArticle.getLocalPath() != null)
+            wVArticle.loadUrl("file://"+mArticle.getLocalPath());
+        else
+            wVArticle.loadUrl(mArticle.getNewsURL());
 
         return view;
     }
@@ -195,10 +197,10 @@ public class WebViewFragment extends Fragment {
     }
 
 
-    public boolean saveAsHTML(){
-        File dataDir = new File(getContext().getApplicationInfo().dataDir+ File.separator +"saved_articles");
+    public boolean saveAsHTML() {
+        File dataDir = new File(getContext().getApplicationInfo().dataDir + File.separator + "saved_articles");
         dataDir.mkdirs();
-        File mhtml = new File(dataDir, mArticle.getNewsID()+".mht");
+        File mhtml = new File(dataDir, mArticle.getNewsID() + ".mht");
         wVArticle.saveWebArchive(mhtml.getAbsolutePath());
         return mhtml.exists();
     }
@@ -231,7 +233,7 @@ public class WebViewFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.

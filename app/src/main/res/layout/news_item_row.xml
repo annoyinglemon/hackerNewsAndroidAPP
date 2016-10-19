@@ -33,7 +33,7 @@
             android:text="This is a sample story. This is a sample story. This is a sample story"
             android:textColor="@color/textColorPrimary"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            fontPath="fonts/ElliotSans-Medium.ttf" />
 
         <View
             android:id="@+id/line"

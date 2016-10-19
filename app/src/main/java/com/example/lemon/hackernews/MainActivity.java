@@ -1,6 +1,9 @@
 package com.example.lemon.hackernews;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,12 +30,16 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity implements WebViewFragment.OnFragmentInteractionListener {
 
@@ -50,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     private ArrayList<Long> topStoryIds = new ArrayList<>();
     private ArrayList<Long> newStoryIds = new ArrayList<>();
     private ArrayList<Long> bestStoryIds = new ArrayList<>();
+    private ArrayList<Long> savedStoryIds = new ArrayList<>();
+
     /**
      * code of last loaded story
      */
@@ -107,17 +116,23 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     private ContentLoadingProgressBar pbTop, pbNew, pbBest, pbSaved;
     private TextView tvErrorTop, tvErrorNew, tvErrorBest, tvErrorSaved;
 
-    private NewsAdapter topAdapter, newAdapter, bestAdapter;
+    private NewsAdapter topAdapter, newAdapter, bestAdapter, savedAdapter;
 
-    private LinearLayoutManager topLayoutManager, newLayoutManager, bestLayoutManager;
+    private LinearLayoutManager topLayoutManager, newLayoutManager, bestLayoutManager, savedLayoutManager;
 
     private BottomSheetBehavior bottomSheetBehavior;
     private FrameLayout bottom_sheet;
     private Animation slide_up, slide_down;
+    private Spinner ddStory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/ElliotSans-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         setContentView(R.layout.activity_main);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -233,6 +248,13 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                 refreshNews();
             }
         });
+        srlSaved.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshNews();
+            }
+        });
+
         topLayoutManager = new LinearLayoutManager(this);
         rvTop.setLayoutManager(topLayoutManager);
         topAdapter = new NewsAdapter(this);
@@ -359,31 +381,50 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             }
         });
 
-        new GetTopNewsList().execute();
+        savedLayoutManager = new LinearLayoutManager(this);
+        rvSaved.setLayoutManager(savedLayoutManager);
+        savedAdapter = new NewsAdapter(this);
+        rvSaved.setAdapter(savedAdapter);
+        rvSaved.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) { //check for scroll down
+                    int visibleItemCount = savedLayoutManager.getChildCount();
+                    int totalItemCount = savedLayoutManager.getItemCount();
+                    int pastVisiblesItems = savedLayoutManager.findFirstVisibleItemPosition();
+
+                    if (((visibleItemCount + pastVisiblesItems) >= totalItemCount) && isAnArticleClicked) {
+                        bottom_sheet.startAnimation(slide_down);
+                    }
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    if (isAnArticleClicked) {
+                        if (slid_up) {
+                            bottom_sheet.startAnimation(slide_down);
+                        }
+                    }
+                } else if (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (isAnArticleClicked) {
+                        if (!slid_up) {
+                            bottom_sheet.startAnimation(slide_up);
+                        }
+                    }
+                }
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+
     }
 
-    public void openNewsArticle(int position) {
-        NewsAdapter mAdapter = topAdapter;
-        switch (storyType) {
-            case TOP_STORIES:
-                mAdapter = topAdapter;
-                break;
-            case NEW_STORIES:
-                mAdapter = newAdapter;
-                break;
-            case BEST_STORIES:
-                mAdapter = bestAdapter;
-                break;
-        }
-        if (mAdapter.getNews(position) != null) {
-            isAnArticleClicked = true;
-            expandFragment();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            mFragment = WebViewFragment.newInstance(mAdapter.getNews(position));
-            ft.replace(R.id.bottom_sheet, mFragment);
-            ft.commit();
-        }
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
+
 
     @Override
     public void onBackPressed() {
@@ -393,13 +434,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             super.onBackPressed();
     }
 
-    public void collapseFragment() {
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-    }
-
-    public void expandFragment() {
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -408,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         MenuItem item = menu.findItem(R.id.menu_story);
 
         //Here, you get access to the view of your item, in this case, the layout of the item has a FrameLayout as root view but you can change it to whatever you use
-        Spinner ddStory = (Spinner) item.getActionView();
+        ddStory = (Spinner) item.getActionView();
 
         ddStory.setAdapter(new BaseAdapter() {
             @Override
@@ -489,22 +523,44 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                     storyType = chosenString;
                     switch (storyType) {
                         case TOP_STORIES:
-                            rlvTop.setVisibility(View.VISIBLE);
-                            if(!isGetTopListRan)
-                                new GetTopNewsList().execute();
+                            if(!isNetworkAvailable()){
+                                Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
+                                rlvTop.setVisibility(View.GONE);
+                                new GetNewsFromDB().execute();
+                                ddStory.setSelection(3);
+                            }else {
+                                rlvTop.setVisibility(View.VISIBLE);
+                                if (!isGetTopListRan)
+                                    new GetTopNewsList().execute();
+                            }
                             break;
                         case NEW_STORIES:
-                            rlvNew.setVisibility(View.VISIBLE);
-                            if(!isGetNewListRan)
-                                new GetNewNewsList().execute();
+                            if(!isNetworkAvailable()){
+                                Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
+                                rlvNew.setVisibility(View.GONE);
+                                new GetNewsFromDB().execute();
+                                ddStory.setSelection(3);
+                            }else {
+                                rlvNew.setVisibility(View.VISIBLE);
+                                if (!isGetNewListRan)
+                                    new GetNewNewsList().execute();
+                            }
                             break;
                         case BEST_STORIES:
-                            rlvBest.setVisibility(View.VISIBLE);
-                            if(!isGetBestListRan)
-                                new GetBestNewsList().execute();
+                            if(!isNetworkAvailable()){
+                                Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
+                                rlvBest.setVisibility(View.GONE);
+                                new GetNewsFromDB().execute();
+                                ddStory.setSelection(3);
+                            }else {
+                                rlvBest.setVisibility(View.VISIBLE);
+                                if (!isGetBestListRan)
+                                    new GetBestNewsList().execute();
+                            }
                             break;
                         case SAVED_STORIES:
                             rlvSaved.setVisibility(View.VISIBLE);
+                            new GetNewsFromDB().execute();
                             break;
                     }
 //                    refreshNews();
@@ -517,7 +573,15 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             }
         });
 
-
+        if(!isNetworkAvailable()){
+            Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
+            rlvTop.setVisibility(View.GONE);
+            new GetNewsFromDB().execute();
+            ddStory.setSelection(3);
+        }else {
+            rlvTop.setVisibility(View.VISIBLE);
+            new GetTopNewsList().execute();
+        }
         return true;
     }
 
@@ -529,6 +593,18 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void collapseFragment() {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    public void expandFragment() {
+        if (!slid_up && isAnArticleClicked) {
+            bottom_sheet.startAnimation(slide_up);
+        }
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
 
     public void refreshNews() {
         if (storyType.equalsIgnoreCase(TOP_STORIES)) {
@@ -561,6 +637,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             mIsLoadingArticle_best = false;
             isDoneLoadingAll_best = false;
             new GetBestNewsList().execute();
+        } else {
+            new GetNewsFromDB().execute();
         }
 //        else
 //            new GetNewsFromDB().execute();
@@ -578,6 +656,38 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     }
 
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public void openNewsArticle(int position) {
+        NewsAdapter mAdapter = topAdapter;
+        switch (storyType) {
+            case TOP_STORIES:
+                mAdapter = topAdapter;
+                break;
+            case NEW_STORIES:
+                mAdapter = newAdapter;
+                break;
+            case BEST_STORIES:
+                mAdapter = bestAdapter;
+                break;
+            case SAVED_STORIES:
+                mAdapter = savedAdapter;
+                break;
+        }
+        if (mAdapter.getNews(position) != null) {
+            isAnArticleClicked = true;
+            expandFragment();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            mFragment = WebViewFragment.newInstance(mAdapter.getNews(position));
+            ft.replace(R.id.bottom_sheet, mFragment);
+            ft.commit();
+        }
+    }
+
     /***********************************
      * ASYNCTASKS
      ***********************************/
@@ -586,6 +696,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
         @Override
         protected void onPreExecute() {
+
             tvErrorTop.setText("An error occurred.");
             tvErrorTop.setVisibility(View.GONE);
             if (topStoryIds == null) {
@@ -661,6 +772,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
         @Override
         protected void onPreExecute() {
+
             tvErrorNew.setText("An error occurred.");
             tvErrorNew.setVisibility(View.GONE);
             if (newStoryIds == null) {
@@ -735,6 +847,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
         @Override
         protected void onPreExecute() {
+
             tvErrorBest.setText("An error occurred.");
             tvErrorBest.setVisibility(View.GONE);
             if (bestStoryIds == null) {
@@ -916,45 +1029,41 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
     }
 
-//    class GetNewsFromDB extends AsyncTask<Void, Void, ArrayList<NewsObject>>{
-//        @Override
-//        protected void onPreExecute() {
-//            tvErrorTop.setText("No news articles were saved.");
-//            tvErrorTop.setVisibility(View.GONE);
-//            if (topStoryIds == null) {
-//                srlTop.setVisibility(View.GONE);
-//                pbTop.setVisibility(View.VISIBLE);
-//                topStoryIds = new ArrayList<>();
-//            }
-//            mIsLoadingArticle = true;
-//            super.onPreExecute();
-//        }
-//
-//        @Override
-//        protected ArrayList<NewsObject> doInBackground(Void... params) {
-//            return new DatabaseAdapter(MainActivity.this).getAllNews();
-//        }
-//
-//        @Override
-//        protected void onPostExecute(ArrayList<NewsObject> newsObjects) {
-//            pbTop.setVisibility(View.GONE);
-//            isDoneLoadingAll = true;
-//            mIsLoadingArticle = false;
-//            mAdapter.setLoadedAll(true);
-//
-//            if (srlTop.isRefreshing())
-//                srlTop.setRefreshing(false);
-//            if(!newsObjects.isEmpty()){
-//                srlTop.setVisibility(View.VISIBLE);
-//                for (NewsObject news: newsObjects) {
-//                    mAdapter.addNews(news);
-//                }
-//            }else{
-//                tvErrorTop.setVisibility(View.VISIBLE);
-//            }
-//            super.onPostExecute(newsObjects);
-//        }
-//    }
+    class GetNewsFromDB extends AsyncTask<Void, Void, ArrayList<NewsObject>> {
+        @Override
+        protected void onPreExecute() {
+            if(rlvSaved.getVisibility()==View.GONE)
+                rlvSaved.setVisibility(View.VISIBLE);
+            tvErrorSaved.setText("No news articles were saved.");
+            tvErrorSaved.setVisibility(View.GONE);
+            srlSaved.setVisibility(View.GONE);
+            pbSaved.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected ArrayList<NewsObject> doInBackground(Void... params) {
+            return new DatabaseAdapter(MainActivity.this).getAllNews();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<NewsObject> newsObjects) {
+            pbSaved.setVisibility(View.GONE);
+            if (srlSaved.isRefreshing())
+                srlSaved.setRefreshing(false);
+            if (!newsObjects.isEmpty()) {
+                savedAdapter.clear();
+                srlSaved.setVisibility(View.VISIBLE);
+                for (NewsObject news : newsObjects) {
+                    savedAdapter.addNews(news);
+                }
+                savedAdapter.setLoadedAll(true);
+            } else {
+                tvErrorSaved.setVisibility(View.VISIBLE);
+            }
+            super.onPostExecute(newsObjects);
+        }
+    }
 
 
 //    public interface ClickListener {

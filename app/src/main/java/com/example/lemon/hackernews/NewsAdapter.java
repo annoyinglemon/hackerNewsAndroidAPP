@@ -210,7 +210,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                 return periodSeconds + " hours ago";
         }
         //get minutes
-        else if ((periodSeconds / 60) >= 60) {
+        else if ((periodSeconds / 60) >= 1) {
             periodSeconds = periodSeconds / 60;
             if (periodSeconds == 1)
                 return periodSeconds + " minute ago";

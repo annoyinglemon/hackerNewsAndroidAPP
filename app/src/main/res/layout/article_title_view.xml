@@ -14,8 +14,8 @@
         android:maxLines="1"
         android:text="This is a sample article.This is a sample article."
         android:textSize="15sp"
-        android:textStyle="bold"
-        android:textColor="@color/colorPrimaryDark"/>
+        android:textColor="@color/colorPrimaryDark"
+        fontPath="fonts/ElliotSans-Medium.ttf"/>
 
     <TextView
         android:id="@+id/tvArticleURL"

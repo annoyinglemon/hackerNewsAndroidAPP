@@ -4,6 +4,9 @@ package com.example.lemon.hackernews;
  * Created by kurt_capatan on 10/3/2016.
  */
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -22,6 +25,7 @@ public class HttpHandler {
 
     public HttpHandler() {
     }
+
 
     public static String makeServiceCall(String reqUrl) {
         InputStream in = null;
