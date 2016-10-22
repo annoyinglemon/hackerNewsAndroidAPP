@@ -85,11 +85,6 @@ public class WebViewFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_web_view, container, false);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
 
-//        toolbar.setTitle(mArticle.getNewsTitle());
-//        Uri uri = Uri.parse(mArticle.getNewsURL());
-//        toolbar.setSubtitle(uri.getAuthority());
-//        toolbar.setTitleTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
-//        toolbar.setSubtitleTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
         LayoutInflater mInflater = LayoutInflater.from(getContext());
         View mCustomView = mInflater.inflate(R.layout.article_title_view, null);
         TextView tvArticleTitle = (TextView) mCustomView.findViewById(R.id.tvArticleTitle);
@@ -98,7 +93,10 @@ public class WebViewFragment extends Fragment {
         tvArticleURL.setText(Uri.parse(mArticle.getNewsURL()).getAuthority());
         toolbar.removeAllViews();
         toolbar.addView(mCustomView);
-        toolbar.inflateMenu(R.menu.menu_down);
+        if (mArticle.getLocalPath() != null)
+            toolbar.inflateMenu(R.menu.menu_down_saved);
+        else
+            toolbar.inflateMenu(R.menu.menu_down);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -117,14 +115,23 @@ public class WebViewFragment extends Fragment {
                             Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " already exists.", Toast.LENGTH_SHORT).show();
                         }
                         return true;
+                    case R.id.action_delete:
+
+                        break;
                     case R.id.action_down:
                         toolbar.getMenu().clear();
-                        toolbar.inflateMenu(R.menu.menu_up);
+                        if (mArticle.getLocalPath() != null)
+                            toolbar.inflateMenu(R.menu.menu_up_saved);
+                        else
+                            toolbar.inflateMenu(R.menu.menu_up);
                         ((MainActivity) getContext()).collapseFragment();
                         return true;
                     case R.id.action_up:
                         toolbar.getMenu().clear();
-                        toolbar.inflateMenu(R.menu.menu_down);
+                        if (mArticle.getLocalPath() != null)
+                            toolbar.inflateMenu(R.menu.menu_down_saved);
+                        else
+                            toolbar.inflateMenu(R.menu.menu_down);
                         ((MainActivity) getContext()).expandFragment();
                         return true;
                     case R.id.action_share:

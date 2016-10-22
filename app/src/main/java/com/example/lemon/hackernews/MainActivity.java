@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     private ArrayList<Long> topStoryIds = new ArrayList<>();
     private ArrayList<Long> newStoryIds = new ArrayList<>();
     private ArrayList<Long> bestStoryIds = new ArrayList<>();
-    private ArrayList<Long> savedStoryIds = new ArrayList<>();
 
     /**
      * code of last loaded story
@@ -209,12 +208,18 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                         bottomSheetBehavior.setHideable(false);
                         bottomSheetBehavior.setPeekHeight(getSupportActionBar().getHeight() + getSupportActionBar().getHeight() / 2);
                         if (webViewFragment != null) {
-                            webViewFragment.replaceMenu(R.menu.menu_down);
+                            if(storyType.equalsIgnoreCase(SAVED_STORIES))
+                                webViewFragment.replaceMenu(R.menu.menu_down_saved);
+                            else
+                                webViewFragment.replaceMenu(R.menu.menu_down);
                         }
                         break;
                     case BottomSheetBehavior.STATE_COLLAPSED:
                         if (webViewFragment != null) {
-                            webViewFragment.replaceMenu(R.menu.menu_up);
+                            if(storyType.equalsIgnoreCase(SAVED_STORIES))
+                                webViewFragment.replaceMenu(R.menu.menu_up_saved);
+                            else
+                                webViewFragment.replaceMenu(R.menu.menu_up);
                         }
                         break;
                     case BottomSheetBehavior.STATE_DRAGGING:
