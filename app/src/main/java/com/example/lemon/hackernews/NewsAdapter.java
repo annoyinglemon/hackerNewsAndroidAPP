@@ -167,6 +167,17 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
         notifyItemInserted(this.newsList.size() - 1);
     }
 
+    public void deleteNews(long newsID){
+        for(int i=0; i<newsList.size(); i++){
+            if(newsList.get(i).getNewsID()==newsID){
+                newsList.remove(i);
+                notifyItemRemoved(i);
+                break;
+            }
+        }
+
+    }
+
     public NewsObject getNews(int position) {
         if (position < this.newsList.size())
             return this.newsList.get(position);

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -48,10 +49,10 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
     }
 
-    private static final String TOP_STORIES = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
-    private static final String NEW_STORIES = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
-    private static final String BEST_STORIES = "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
-    private static final String SAVED_STORIES = "saved_stories";
+    public static final String TOP_STORIES = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
+    public static final String NEW_STORIES = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
+    public static final String BEST_STORIES = "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
+    public static final String SAVED_STORIES = "saved_stories";
 
 
     private ArrayList<Long> topStoryIds = new ArrayList<>();
@@ -103,6 +104,11 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
      */
     private String storyType = TOP_STORIES;
 
+    /**
+     * variable for storing the clicked news object
+     */
+    private String mClickedArticleType = TOP_STORIES;
+
     private boolean isGetTopListRan = false;
     private boolean isGetNewListRan = false;
     private boolean isGetBestListRan = false;
@@ -124,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     private Animation slide_up, slide_down;
     private Spinner ddStory;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                 .build()
         );
         setContentView(R.layout.activity_main);
+
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
@@ -208,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                         bottomSheetBehavior.setHideable(false);
                         bottomSheetBehavior.setPeekHeight(getSupportActionBar().getHeight() + getSupportActionBar().getHeight() / 2);
                         if (webViewFragment != null) {
-                            if(storyType.equalsIgnoreCase(SAVED_STORIES))
+                            if (mClickedArticleType.equalsIgnoreCase(SAVED_STORIES))
                                 webViewFragment.replaceMenu(R.menu.menu_down_saved);
                             else
                                 webViewFragment.replaceMenu(R.menu.menu_down);
@@ -216,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                         break;
                     case BottomSheetBehavior.STATE_COLLAPSED:
                         if (webViewFragment != null) {
-                            if(storyType.equalsIgnoreCase(SAVED_STORIES))
+                            if (mClickedArticleType.equalsIgnoreCase(SAVED_STORIES))
                                 webViewFragment.replaceMenu(R.menu.menu_up_saved);
                             else
                                 webViewFragment.replaceMenu(R.menu.menu_up);
@@ -225,6 +233,10 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                     case BottomSheetBehavior.STATE_DRAGGING:
                         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                         break;
+//                    case BottomSheetBehavior.STATE_SETTLING:
+//                        if(webViewFragment!=null&&bottomSheetBehavior.getState()!=BottomSheetBehavior.STATE_DRAGGING)
+//                            webViewFragment.replaceMenu(0);
+//                        break;
                 }
 
             }
@@ -528,36 +540,36 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                     storyType = chosenString;
                     switch (storyType) {
                         case TOP_STORIES:
-                            if(!isNetworkAvailable()){
+                            if (!isNetworkAvailable()) {
                                 Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
                                 rlvTop.setVisibility(View.GONE);
                                 new GetNewsFromDB().execute();
                                 ddStory.setSelection(3);
-                            }else {
+                            } else {
                                 rlvTop.setVisibility(View.VISIBLE);
                                 if (!isGetTopListRan)
                                     new GetTopNewsList().execute();
                             }
                             break;
                         case NEW_STORIES:
-                            if(!isNetworkAvailable()){
+                            if (!isNetworkAvailable()) {
                                 Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
                                 rlvNew.setVisibility(View.GONE);
                                 new GetNewsFromDB().execute();
                                 ddStory.setSelection(3);
-                            }else {
+                            } else {
                                 rlvNew.setVisibility(View.VISIBLE);
                                 if (!isGetNewListRan)
                                     new GetNewNewsList().execute();
                             }
                             break;
                         case BEST_STORIES:
-                            if(!isNetworkAvailable()){
+                            if (!isNetworkAvailable()) {
                                 Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
                                 rlvBest.setVisibility(View.GONE);
                                 new GetNewsFromDB().execute();
                                 ddStory.setSelection(3);
-                            }else {
+                            } else {
                                 rlvBest.setVisibility(View.VISIBLE);
                                 if (!isGetBestListRan)
                                     new GetBestNewsList().execute();
@@ -578,12 +590,12 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             }
         });
 
-        if(!isNetworkAvailable()){
+        if (!isNetworkAvailable()) {
             Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
             rlvTop.setVisibility(View.GONE);
             new GetNewsFromDB().execute();
             ddStory.setSelection(3);
-        }else {
+        } else {
             rlvTop.setVisibility(View.VISIBLE);
             new GetTopNewsList().execute();
         }
@@ -672,15 +684,19 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         switch (storyType) {
             case TOP_STORIES:
                 mAdapter = topAdapter;
+                mClickedArticleType = TOP_STORIES;
                 break;
             case NEW_STORIES:
                 mAdapter = newAdapter;
+                mClickedArticleType = NEW_STORIES;
                 break;
             case BEST_STORIES:
                 mAdapter = bestAdapter;
+                mClickedArticleType = BEST_STORIES;
                 break;
             case SAVED_STORIES:
                 mAdapter = savedAdapter;
+                mClickedArticleType = SAVED_STORIES;
                 break;
         }
         if (mAdapter.getNews(position) != null) {
@@ -692,6 +708,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             ft.commit();
         }
     }
+
 
     /***********************************
      * ASYNCTASKS
@@ -1034,10 +1051,24 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
     }
 
+    public void addNewsToList(NewsObject newsObject) {
+        savedAdapter.addNews(newsObject);
+    }
+
+    public void deleteNewsFromList(long newsID) {
+        if (savedAdapter.getItemCount() > 1) {
+            savedAdapter.deleteNews(newsID);
+        }
+    }
+
+    public void setClickedNewsType(String type) {
+        this.mClickedArticleType = type;
+    }
+
     class GetNewsFromDB extends AsyncTask<Void, Void, ArrayList<NewsObject>> {
         @Override
         protected void onPreExecute() {
-            if(rlvSaved.getVisibility()==View.GONE)
+            if (rlvSaved.getVisibility() == View.GONE)
                 rlvSaved.setVisibility(View.VISIBLE);
             tvErrorSaved.setText("No news articles were saved.");
             tvErrorSaved.setVisibility(View.GONE);

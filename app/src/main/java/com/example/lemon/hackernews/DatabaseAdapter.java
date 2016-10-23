@@ -61,6 +61,14 @@ public class DatabaseAdapter {
         return id;
     }
 
+    public int deleteArticle(long newsID){
+        SQLiteDatabase sqlDB = helper.getWritableDatabase();
+        String[] whereArgs = {Long.toString(newsID)};
+        int result = sqlDB.delete(DBHelper.TABLE_NEWS, DBHelper.NEWS_ID + "=?", whereArgs);
+        helper.close();
+        return result;
+    }
+
     public NewsObject getNews(long newsID) {
         SQLiteDatabase sqlDB = helper.getWritableDatabase();
         String[] columns = {DBHelper.NEWS_ID, DBHelper.NEWS_URL, DBHelper.NEWS_TITLE, DBHelper.NEWS_AUTHOR, DBHelper.NEWS_SCORE, DBHelper.NEWS_CREATION_DATE, DBHelper.NEWS_LOCAL_PATH};
