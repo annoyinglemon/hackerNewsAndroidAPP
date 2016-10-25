@@ -4,26 +4,29 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.johnpersano.supertoasts.library.Style;
+import com.github.johnpersano.supertoasts.library.SuperActivityToast;
+import com.github.johnpersano.supertoasts.library.SuperToast;
 
 import java.io.File;
 
@@ -110,7 +113,7 @@ public class WebViewFragment extends Fragment {
                             if (saveAsHTML()) {
                                 mArticle.setLocalPath(getContext().getApplicationInfo().dataDir + File.separator + "saved_articles" + File.separator + mArticle.getNewsID() + ".mht");
                                 if (databaseAdapter.insertIntoActualExpenses(mArticle) > -1) {
-                                    Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " is successfully saved.", Toast.LENGTH_SHORT).show();
+                                    showToast("Article " + mArticle.getNewsID() + " is successfully saved.");
                                     ((MainActivity) getContext()).addNewsToList(mArticle);
                                     ((MainActivity) getContext()).setClickedNewsType(MainActivity.SAVED_STORIES);
                                     if (toolbar.getMenu().getItem(0).getItemId() == R.id.action_up) {
@@ -122,47 +125,48 @@ public class WebViewFragment extends Fragment {
                                     }
                                 }
                             } else
-                                Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " is not successfully saved, try again.", Toast.LENGTH_SHORT).show();
+                                showToast("Article " + mArticle.getNewsID() + " is not successfully saved, try again.");
                         } else {
-                            Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " already exists.", Toast.LENGTH_SHORT).show();
+                            showToast("Article " + mArticle.getNewsID() + " already exists.");
                         }
                         return true;
                     case R.id.action_delete:
+                        isUndoClicked = false;
                         final DatabaseAdapter databaseAdapter2 = new DatabaseAdapter(getContext());
-                        Snackbar snackbar = Snackbar
-                                .make(view, "Article deleted", Snackbar.LENGTH_LONG)
-                                .setAction("UNDO", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        isUndoClicked = true;
-                                        Snackbar snackbar1 = Snackbar.make(view, "Article restored", Snackbar.LENGTH_SHORT);
-                                        snackbar1.show();
-                                    }
-                                })
-                                .setCallback(new Snackbar.Callback() {
-                                    @Override
-                                    public void onDismissed(Snackbar snackbar, int event) {
-                                        if(!isUndoClicked) {
-                                            if (deleteHTML()) {
-                                                ((MainActivity) getContext()).setClickedNewsType(MainActivity.TOP_STORIES);
-                                                if (toolbar.getMenu().getItem(0).getItemId() == R.id.action_up) {
-                                                    toolbar.getMenu().clear();
-                                                    toolbar.inflateMenu(R.menu.menu_up);
-                                                } else {
-                                                    toolbar.getMenu().clear();
-                                                    toolbar.inflateMenu(R.menu.menu_down);
-                                                }
-                                                databaseAdapter2.deleteArticle(mArticle.getNewsID());
-                                                ((MainActivity) getContext()).deleteNewsFromList(mArticle.getNewsID());
-                                            } else
-                                                Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " is not successfully deleted.", Toast.LENGTH_SHORT).show();
-                                        }else{
-                                            isUndoClicked = false;
+                        SuperActivityToast.create(getActivity(), new Style(),
+                                Style.TYPE_BUTTON)
+                                .setButtonText("UNDO")
+                                .setButtonIconResource(R.drawable.ic_undo)
+                                .setOnButtonClickListener("undo_button", null, onUndoClickListener)
+                                .setButtonTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
+                                .setText("Article deleted")
+                                .setTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
+                                .setDuration(Style.DURATION_SHORT)
+                                .setFrame(Style.FRAME_STANDARD)
+                                .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                                .setAnimations(Style.ANIMATIONS_FADE)
+                                .show();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!isUndoClicked) {
+                                    if (deleteHTML()) {
+                                        if (databaseAdapter2.deleteArticle(mArticle.getNewsID()) > 0) {
+                                            ((MainActivity) getContext()).deleteNewsFromList(mArticle.getNewsID());
+                                            ((MainActivity) getContext()).setClickedNewsType(MainActivity.TOP_STORIES);
+                                            if (toolbar.getMenu().getItem(0).getItemId() == R.id.action_up) {
+                                                toolbar.getMenu().clear();
+                                                toolbar.inflateMenu(R.menu.menu_up);
+                                            } else {
+                                                toolbar.getMenu().clear();
+                                                toolbar.inflateMenu(R.menu.menu_down);
+                                            }
                                         }
-                                        super.onDismissed(snackbar, event);
-                                    }
-                                });
-                        snackbar.show();
+                                    } else
+                                        Toast.makeText(getContext(), "Article " + mArticle.getNewsID() + " is not successfully deleted.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }, 2350);
                         break;
                     case R.id.action_down:
 //                        toolbar.getMenu().clear();
@@ -187,7 +191,7 @@ public class WebViewFragment extends Fragment {
                         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("URL", mArticle.getNewsURL());
                         clipboard.setPrimaryClip(clip);
-                        Toast.makeText(getContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+                        showToast("Copied to clipboard");
                         return true;
                     case R.id.action_open:
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mArticle.getNewsURL())));
@@ -220,7 +224,7 @@ public class WebViewFragment extends Fragment {
         });
         wVArticle.setWebViewClient(new MyWebViewClient());
         if (mArticle.getLocalPath() != null)
-            wVArticle.loadUrl("file://"+mArticle.getLocalPath());
+            wVArticle.loadUrl("file://" + mArticle.getLocalPath());
         else
             wVArticle.loadUrl(mArticle.getNewsURL());
 
@@ -238,7 +242,7 @@ public class WebViewFragment extends Fragment {
 
     public void replaceMenu(int menuRes) {
         toolbar.getMenu().clear();
-        if(menuRes!=0)
+        if (menuRes != 0)
             toolbar.inflateMenu(menuRes);
     }
 
@@ -255,6 +259,17 @@ public class WebViewFragment extends Fragment {
         File dataDir = new File(getContext().getApplicationInfo().dataDir + File.separator + "saved_articles");
         File mhtml = new File(dataDir, mArticle.getNewsID() + ".mht");
         return mhtml.delete();
+    }
+
+    public void showToast(String message){
+        SuperActivityToast.create(getContext(), new Style(), Style.TYPE_STANDARD)
+                .setText(message)
+                .setTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
+                .setDuration(Style.DURATION_SHORT)
+                .setFrame(Style.FRAME_STANDARD)
+                .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                .setAnimations(Style.ANIMATIONS_FADE)
+                .show();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -294,4 +309,21 @@ public class WebViewFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    private final SuperActivityToast.OnButtonClickListener onUndoClickListener = new SuperActivityToast.OnButtonClickListener() {
+
+        @Override
+        public void onClick(View view, Parcelable token) {
+            isUndoClicked = true;
+            SuperActivityToast.create(getActivity(), new Style(),
+                    Style.TYPE_STANDARD)
+                    .setText("Article restored")
+                    .setTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
+                    .setDuration(Style.DURATION_VERY_SHORT)
+                    .setFrame(Style.FRAME_STANDARD)
+                    .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                    .setAnimations(Style.ANIMATIONS_FADE)
+                    .show();
+        }
+    };
 }

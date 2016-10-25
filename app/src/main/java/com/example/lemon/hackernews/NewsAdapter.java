@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
@@ -22,6 +23,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.johnpersano.supertoasts.library.Style;
+import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -128,7 +132,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                                     ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
                                     ClipData clip = ClipData.newPlainText("URL", newsList.get(holder.getAdapterPosition()).getNewsURL());
                                     clipboard.setPrimaryClip(clip);
-                                    Toast.makeText(mContext, "Copied to clipboard", Toast.LENGTH_SHORT).show();
+                                    showToast("Copied to clipboard");
                                     return true;
                                 case R.id.action_open:
                                     mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(newsList.get(holder.getAdapterPosition()).getNewsURL())));
@@ -195,6 +199,16 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
         notifyItemChanged(newsList.size() + 1);
     }
 
+    public void showToast(String message){
+        SuperActivityToast.create(mContext, new Style(), Style.TYPE_STANDARD)
+                .setText(message)
+                .setTextColor(ContextCompat.getColor(mContext, R.color.grey_white_1000))
+                .setDuration(Style.DURATION_SHORT)
+                .setFrame(Style.FRAME_STANDARD)
+                .setColor(ContextCompat.getColor(mContext, R.color.colorPrimary))
+                .setAnimations(Style.ANIMATIONS_FADE)
+                .show();
+    }
 
     public boolean isEmpty() {
         return this.newsList.size() == 0;

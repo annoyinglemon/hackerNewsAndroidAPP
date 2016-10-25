@@ -7,10 +7,11 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,9 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.johnpersano.supertoasts.library.Style;
+import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -129,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     private FrameLayout bottom_sheet;
     private Animation slide_up, slide_down;
     private Spinner ddStory;
+
+    private boolean doubleBackToExitPressedOnce = false;
 
 
     @Override
@@ -447,8 +453,24 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     public void onBackPressed() {
         if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED || bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_SETTLING) {
             collapseFragment();
-        } else
-            super.onBackPressed();
+        } else{
+            if (doubleBackToExitPressedOnce) {
+                super.onBackPressed();
+                return;
+            }
+
+            this.doubleBackToExitPressedOnce = true;
+            showToast("Tap back button again to exit");
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce=false;
+                }
+            }, 2000);
+        }
+
     }
 
 
@@ -541,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                     switch (storyType) {
                         case TOP_STORIES:
                             if (!isNetworkAvailable()) {
-                                Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
+                                showToast("No internet connection");
                                 rlvTop.setVisibility(View.GONE);
                                 new GetNewsFromDB().execute();
                                 ddStory.setSelection(3);
@@ -553,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                             break;
                         case NEW_STORIES:
                             if (!isNetworkAvailable()) {
-                                Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
+                                showToast("No internet connection");
                                 rlvNew.setVisibility(View.GONE);
                                 new GetNewsFromDB().execute();
                                 ddStory.setSelection(3);
@@ -565,7 +587,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                             break;
                         case BEST_STORIES:
                             if (!isNetworkAvailable()) {
-                                Toast.makeText(MainActivity.this, "No internet connection.", Toast.LENGTH_SHORT).show();
+                                showToast("No internet connection");
                                 rlvBest.setVisibility(View.GONE);
                                 new GetNewsFromDB().execute();
                                 ddStory.setSelection(3);
@@ -707,6 +729,18 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             ft.replace(R.id.bottom_sheet, mFragment);
             ft.commit();
         }
+    }
+
+    public void showToast(String message){
+        SuperActivityToast.create(this, new Style(),
+                Style.TYPE_STANDARD)
+                .setText(message)
+                .setTextColor(ContextCompat.getColor(this, R.color.grey_white_1000))
+                .setDuration(Style.DURATION_SHORT)
+                .setFrame(Style.FRAME_STANDARD)
+                .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .setAnimations(Style.ANIMATIONS_FADE)
+                .show();
     }
 
 
@@ -1058,6 +1092,12 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     public void deleteNewsFromList(long newsID) {
         if (savedAdapter.getItemCount() > 1) {
             savedAdapter.deleteNews(newsID);
+            if(savedAdapter.getItemCount() == 1){
+                tvErrorSaved.setText("No news articles were saved.");
+                srlSaved.setVisibility(View.GONE);
+                pbSaved.setVisibility(View.GONE);
+                tvErrorSaved.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -1100,7 +1140,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
             super.onPostExecute(newsObjects);
         }
     }
-
 
 //    public interface ClickListener {
 //        void onClick(View view, int position);
