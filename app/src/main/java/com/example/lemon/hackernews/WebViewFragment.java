@@ -4,6 +4,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +19,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
@@ -44,8 +50,9 @@ public class WebViewFragment extends Fragment {
     private Toolbar toolbar;
     private WebView wVArticle;
     private ProgressBar pbWebArticle;
+    private TextView tvOffline;
     boolean isUndoClicked = false;
-    private View snackbarParent;
+    boolean isGoOnlineClicked = false;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -206,6 +213,7 @@ public class WebViewFragment extends Fragment {
 
         pbWebArticle = (ProgressBar) view.findViewById(R.id.pbWebArticle);
 
+        tvOffline = (TextView) view.findViewById(R.id.tvOffline);
         wVArticle.getSettings().setJavaScriptEnabled(true);
         wVArticle.getSettings().setLoadWithOverviewMode(true);
         wVArticle.getSettings().setUseWideViewPort(true);
@@ -216,6 +224,11 @@ public class WebViewFragment extends Fragment {
                 if (progress == 100) {
                     pbWebArticle.setProgress(100);
                     pbWebArticle.setVisibility(View.GONE);
+                    if (mArticle.getLocalPath() != null && !isGoOnlineClicked){
+                        tvOffline.setVisibility(View.VISIBLE);
+                        tvOffline.setTranslationY(-1000f);
+                        tvOffline.animate().translationYBy(1000f).setDuration(600);
+                    }
                 } else {
                     pbWebArticle.setVisibility(View.VISIBLE);
                     pbWebArticle.setProgress(progress);
@@ -238,6 +251,45 @@ public class WebViewFragment extends Fragment {
             return true;
         }
 
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            if(mArticle.getLocalPath()!=null && isNetworkAvailable()) {
+                Snackbar snackbar = Snackbar.make(view, "This Webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
+                        .setAction("GO ONLINE", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                tvOffline.setVisibility(View.GONE);
+                                wVArticle.loadUrl(mArticle.getNewsURL());
+                            }
+                        });
+                snackbar.setActionTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+                snackbar.show();
+            }
+            super.onReceivedError(view, request, error);
+        }
+
+        @Override
+        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            if(mArticle.getLocalPath()!=null && isNetworkAvailable()) {
+                final Snackbar snackbar = Snackbar.make(view, "This Webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
+                        .setAction("GO ONLINE", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                tvOffline.setVisibility(View.GONE);
+                                wVArticle.loadUrl(mArticle.getNewsURL());
+                                isGoOnlineClicked = true;
+                            }
+                        })
+                        .setActionTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                        .setDuration(Snackbar.LENGTH_INDEFINITE);
+                snackbar.show();
+            }else if(mArticle.getLocalPath()!=null && !isNetworkAvailable()){
+                final Snackbar snackbar = Snackbar.make(view, "This Webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
+                        .setDuration(Snackbar.LENGTH_INDEFINITE);
+                snackbar.show();
+            }
+            super.onReceivedError(view, errorCode, description, failingUrl);
+        }
     }
 
     public void replaceMenu(int menuRes) {
@@ -270,6 +322,12 @@ public class WebViewFragment extends Fragment {
                 .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
                 .setAnimations(Style.ANIMATIONS_FADE)
                 .show();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
