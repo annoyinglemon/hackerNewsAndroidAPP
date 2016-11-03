@@ -1,4 +1,4 @@
-package com.example.lemon.hackernews;
+package com.kurt.lemond.hackernews;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -249,7 +249,7 @@ public class WebViewFragment extends Fragment {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             if(mArticle.getLocalPath()!=null && isNetworkAvailable()) {
-                final Snackbar snackbar = Snackbar.make(view, "This Webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
+                final Snackbar snackbar = Snackbar.make(view, "Oops! Looks like this webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
                         .setAction("GO ONLINE", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -262,7 +262,7 @@ public class WebViewFragment extends Fragment {
                         .setDuration(Snackbar.LENGTH_INDEFINITE);
                 snackbar.show();
             }else if(mArticle.getLocalPath()!=null && !isNetworkAvailable()){
-                final Snackbar snackbar = Snackbar.make(view, "This Webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
+                final Snackbar snackbar = Snackbar.make(view, "Oops! Looks like this webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
                         .setDuration(Snackbar.LENGTH_INDEFINITE);
                 snackbar.show();
             }

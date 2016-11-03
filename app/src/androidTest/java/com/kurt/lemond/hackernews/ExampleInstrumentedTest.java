@@ -1,4 +1,4 @@
-package com.example.lemon.hackernews;
+package com.kurt.lemond.hackernews;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

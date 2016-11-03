@@ -1,4 +1,4 @@
-package com.example.lemon.hackernews;
+package com.kurt.lemond.hackernews;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -30,7 +30,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -637,7 +639,37 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         } else if(id==android.R.id.home){
             // home button from toolbar clicked
             View dialog_about = LayoutInflater.from(this).inflate(R.layout.dialog_about, null);
+            ImageView ivGPlus = (ImageView) dialog_about.findViewById(R.id.ivGPlus);
+            ImageView ivTwitter = (ImageView) dialog_about.findViewById(R.id.ivTwitter);
+            Button bnReview = (Button) dialog_about.findViewById(R.id.bnReview);
             TextView tvLegal =(TextView) dialog_about.findViewById(R.id.tvLegal);
+            ivGPlus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://plus.google.com/u/0/104794761449407529898")));
+                }
+            });
+            ivTwitter.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/annoyingLemond")));
+                }
+            });
+            bnReview.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    /* This code assumes you are inside an activity */
+                     Uri uri = Uri.parse("market://details?id=" + getApplicationContext().getPackageName());
+                     Intent rateAppIntent = new Intent(Intent.ACTION_VIEW, uri);
+
+                    if (getPackageManager().queryIntentActivities(rateAppIntent, 0).size() > 0) {
+                        startActivity(rateAppIntent);
+                    } else {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+getApplicationContext().getPackageName())));
+                            /* handle your error case: the device has no way to handle market urls */
+                    }
+                }
+            });
             tvLegal.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

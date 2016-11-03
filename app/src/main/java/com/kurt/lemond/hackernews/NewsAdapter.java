@@ -1,4 +1,4 @@
-package com.example.lemon.hackernews;
+package com.kurt.lemond.hackernews;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
