@@ -44,7 +44,7 @@
             android:text="An error occurred."
             android:textSize="17sp"
             android:textAlignment="center"
-            fontPath="fonts/ElliotSans-Medium.ttf"
+            fontPath="fonts/Esphimere-Bold.otf"
             android:visibility="gone"
             android:layout_marginTop="30dp"/>
 
@@ -85,7 +85,7 @@
             android:text="An error occurred."
             android:textSize="17sp"
             android:textAlignment="center"
-            fontPath="fonts/ElliotSans-Medium.ttf"
+            fontPath="fonts/Esphimere-Bold.otf"
             android:visibility="gone"
             android:layout_marginTop="30dp"/>
 
@@ -126,7 +126,7 @@
             android:text="An error occurred."
             android:textSize="17sp"
             android:textAlignment="center"
-            fontPath="fonts/ElliotSans-Medium.ttf"
+            fontPath="fonts/Esphimere-Bold.otf"
             android:visibility="gone"
             android:layout_marginTop="30dp"/>
 
@@ -168,7 +168,7 @@
             android:text="No articles were saved."
             android:textSize="17sp"
             android:textAlignment="center"
-            fontPath="fonts/ElliotSans-Medium.ttf"
+            fontPath="fonts/Esphimere-Bold.otf"
             android:visibility="gone"
             android:layout_marginTop="30dp"/>
 

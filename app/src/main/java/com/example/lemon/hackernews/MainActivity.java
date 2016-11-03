@@ -2,6 +2,7 @@ package com.example.lemon.hackernews;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -14,6 +15,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -141,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("fonts/ElliotSans-Regular.ttf")
+                .setDefaultFontPath("fonts/Esphimere-Light.otf")
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
@@ -151,8 +153,11 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.drawable.ic_hacker_news);
-        getSupportActionBar().setTitle("  Hacker News");
+//        getSupportActionBar().setIcon(R.drawable.ic_hacker_news);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_hacker_news);
+        getSupportActionBar().setTitle("Hacker News");
 
         /** one relative layout and child views for each news category: Top, New, Best and Saved **/
         //TOP
@@ -629,6 +634,21 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         int id = item.getItemId();
         if (id == R.id.menu_story) {
             return true;
+        } else if(id==android.R.id.home){
+            // home button from toolbar clicked
+            View dialog_about = LayoutInflater.from(this).inflate(R.layout.dialog_about, null);
+            TextView tvLegal =(TextView) dialog_about.findViewById(R.id.tvLegal);
+            tvLegal.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MainActivity.this, LegalActivity.class));
+                }
+            });
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("About");
+            builder.setView(dialog_about);
+            builder.setCancelable(true);
+            builder.show();
         }
         return super.onOptionsItemSelected(item);
     }

@@ -19,11 +19,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
@@ -32,7 +28,6 @@ import android.widget.Toast;
 
 import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
-import com.github.johnpersano.supertoasts.library.SuperToast;
 
 import java.io.File;
 
@@ -249,23 +244,6 @@ public class WebViewFragment extends Fragment {
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             view.loadUrl(url);
             return true;
-        }
-
-        @Override
-        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            if(mArticle.getLocalPath()!=null && isNetworkAvailable()) {
-                Snackbar snackbar = Snackbar.make(view, "This Webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
-                        .setAction("GO ONLINE", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                tvOffline.setVisibility(View.GONE);
-                                wVArticle.loadUrl(mArticle.getNewsURL());
-                            }
-                        });
-                snackbar.setActionTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
-                snackbar.show();
-            }
-            super.onReceivedError(view, request, error);
         }
 
         @Override
