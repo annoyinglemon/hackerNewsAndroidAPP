@@ -11,16 +11,28 @@
         android:icon="@drawable/ic_save"
         app:showAsAction="always"
         android:title="Save"/>
-    <item android:id="@+id/action_share"
-        android:icon="@drawable/ic_share"
-        app:showAsAction="ifRoom"
-        android:title="Share"/>
-    <item android:id="@+id/action_copy"
-        android:icon="@drawable/ic_copy_link"
-        app:showAsAction="ifRoom"
-        android:title="Copy URL"/>
-    <item android:id="@+id/action_open"
-        android:icon="@drawable/ic_globe"
-        app:showAsAction="ifRoom"
-        android:title="Open with.."/>
+    <item
+        android:title=""
+        android:id="@+id/empty"
+        android:icon="@drawable/ic_menu"
+        android:orderInCategory="101"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/action_share"
+                android:icon="@drawable/ic_share"
+                android:title="Share"
+                app:showAsAction="always|withText" />
+            <item
+                android:id="@+id/action_copy"
+                android:icon="@drawable/ic_copy_link"
+                android:title="Copy URL"
+                app:showAsAction="always|withText" />
+            <item
+                android:id="@+id/action_open"
+                android:icon="@drawable/ic_globe"
+                android:title="Open with.."
+                app:showAsAction="always|withText"/>
+        </menu>
+    </item>
 </menu>
