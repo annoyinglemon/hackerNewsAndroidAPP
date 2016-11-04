@@ -33,6 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -227,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                     case BottomSheetBehavior.STATE_EXPANDED:
                         isAnArticleClicked = true;
                         bottomSheetBehavior.setHideable(false);
-                        bottomSheetBehavior.setPeekHeight(getSupportActionBar().getHeight() + getSupportActionBar().getHeight() / 2);
+                        bottomSheetBehavior.setPeekHeight(getSoftButtonsBarHeight() + getSupportActionBar().getHeight() / 2 + 25);
                         if (webViewFragment != null) {
                             if (mClickedArticleType.equalsIgnoreCase(SAVED_STORIES))
                                 webViewFragment.replaceMenu(R.menu.menu_down_saved);
