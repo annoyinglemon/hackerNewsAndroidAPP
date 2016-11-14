@@ -640,22 +640,22 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         } else if(id==android.R.id.home){
             // home button from toolbar clicked
             View dialog_about = LayoutInflater.from(this).inflate(R.layout.dialog_about, null);
-            ImageView ivGPlus = (ImageView) dialog_about.findViewById(R.id.ivGPlus);
-            ImageView ivTwitter = (ImageView) dialog_about.findViewById(R.id.ivTwitter);
+//            ImageView ivGPlus = (ImageView) dialog_about.findViewById(R.id.ivGPlus);
+//            ImageView ivTwitter = (ImageView) dialog_about.findViewById(R.id.ivTwitter);
             Button bnReview = (Button) dialog_about.findViewById(R.id.bnReview);
             TextView tvLegal =(TextView) dialog_about.findViewById(R.id.tvLegal);
-            ivGPlus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://plus.google.com/u/0/104794761449407529898")));
-                }
-            });
-            ivTwitter.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/annoyingLemond")));
-                }
-            });
+//            ivGPlus.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("")));
+//                }
+//            });
+//            ivTwitter.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("")));
+//                }
+//            });
             bnReview.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
