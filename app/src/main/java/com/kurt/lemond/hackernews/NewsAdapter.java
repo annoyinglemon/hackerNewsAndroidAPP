@@ -21,6 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.facebook.LoggingBehavior;
+import com.facebook.internal.Logger;
 import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 
@@ -90,23 +92,25 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                 });
             }
         } else {
+            final NewsObject news = newsList.get(position);
             RelativeLayout rvCardCase = holder.rvCardCase;
             holder.rvCardCase.setVisibility(View.VISIBLE);
             rvCardCase.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Logger.log(LoggingBehavior.APP_EVENTS, "article_open", news.getNewsTitle());
                     if(holder.getAdapterPosition() != newsList.size())
                         ((MainActivity) mContext).openNewsArticle(holder.getAdapterPosition());
                 }
             });
             holder.llLoading.setVisibility(View.GONE);
-            NewsObject news = newsList.get(position);
             holder.tvTitle.setText(news.getNewsTitle());
             holder.tvPoints.setText(news.getNewsScore() + " by " + news.getNewsAuthor());
             final TextView tvMenu = holder.tvMenu;
             tvMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Logger.log(LoggingBehavior.APP_EVENTS, "article_click", "article_popup_click");
                     PopupMenu popup = new PopupMenu(mContext, tvMenu);
                     popup.getMenuInflater()
                             .inflate(R.menu.menu_popup, popup.getMenu());
@@ -124,15 +128,18 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                                     share.putExtra(Intent.EXTRA_SUBJECT, newsList.get(holder.getAdapterPosition()).getNewsTitle());
                                     share.putExtra(Intent.EXTRA_TEXT, newsList.get(holder.getAdapterPosition()).getNewsURL());
                                     mContext.startActivity(Intent.createChooser(share, "Share"));
+                                    Logger.log(LoggingBehavior.APP_EVENTS, "article_popup_click", "action_share");
                                     return true;
                                 case R.id.action_copy:
                                     ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
                                     ClipData clip = ClipData.newPlainText("URL", newsList.get(holder.getAdapterPosition()).getNewsURL());
                                     clipboard.setPrimaryClip(clip);
                                     showToast("Copied to clipboard");
+                                    Logger.log(LoggingBehavior.APP_EVENTS, "article_popup_click", "copy_to_clipboard");
                                     return true;
                                 case R.id.action_open:
                                     mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(newsList.get(holder.getAdapterPosition()).getNewsURL())));
+                                    Logger.log(LoggingBehavior.APP_EVENTS, "article_popup_click", "open_via_browser");
                                     return true;
                             }
                             return true;

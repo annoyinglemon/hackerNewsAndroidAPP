@@ -32,13 +32,15 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
+import com.facebook.LoggingBehavior;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.internal.Logger;
 import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 
@@ -47,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -62,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     public static final String NEW_STORIES = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
     public static final String BEST_STORIES = "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
     public static final String SAVED_STORIES = "saved_stories";
-
 
     private ArrayList<Long> topStoryIds = new ArrayList<>();
     private ArrayList<Long> newStoryIds = new ArrayList<>();
@@ -145,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppEventsLogger.activateApp(getApplication());
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("fonts/Esphimere-Light.otf")
                 .setFontAttrId(R.attr.fontPath)
@@ -152,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         );
         setContentView(R.layout.activity_main);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         assert getSupportActionBar() != null;
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -164,31 +167,30 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
 
         /** one relative layout and child views for each news category: Top, New, Best and Saved **/
         //TOP
-        rlvTop = (RelativeLayout) findViewById(R.id.rlvTop);
-        srlTop = (SwipeRefreshLayout) findViewById(R.id.srlTop);
-        rvTop = (RecyclerView) findViewById(R.id.rvTop);
-        pbTop = (ContentLoadingProgressBar) findViewById(R.id.pbTop);
-        tvErrorTop = (TextView) findViewById(R.id.tvErrorTop);
+        rlvTop = findViewById(R.id.rlvTop);
+        srlTop = findViewById(R.id.srlTop);
+        rvTop = findViewById(R.id.rvTop);
+        pbTop = findViewById(R.id.pbTop);
+        tvErrorTop = findViewById(R.id.tvErrorTop);
         //NEW
-        rlvNew = (RelativeLayout) findViewById(R.id.rlvNew);
-        srlNew = (SwipeRefreshLayout) findViewById(R.id.srlNew);
-        rvNew = (RecyclerView) findViewById(R.id.rvNew);
-        pbNew = (ContentLoadingProgressBar) findViewById(R.id.pbNew);
-        tvErrorNew = (TextView) findViewById(R.id.tvErrorNew);
+        rlvNew = findViewById(R.id.rlvNew);
+        srlNew = findViewById(R.id.srlNew);
+        rvNew = findViewById(R.id.rvNew);
+        pbNew = findViewById(R.id.pbNew);
+        tvErrorNew = findViewById(R.id.tvErrorNew);
         //BEST
-        rlvBest = (RelativeLayout) findViewById(R.id.rlvBest);
-        srlBest = (SwipeRefreshLayout) findViewById(R.id.srlBest);
-        rvBest = (RecyclerView) findViewById(R.id.rvBest);
-        pbBest = (ContentLoadingProgressBar) findViewById(R.id.pbBest);
-        tvErrorBest = (TextView) findViewById(R.id.tvErrorBest);
+        rlvBest = findViewById(R.id.rlvBest);
+        srlBest = findViewById(R.id.srlBest);
+        rvBest = findViewById(R.id.rvBest);
+        pbBest = findViewById(R.id.pbBest);
+        tvErrorBest = findViewById(R.id.tvErrorBest);
         //SAVED
-        rlvSaved = (RelativeLayout) findViewById(R.id.rlvSaved);
-        srlSaved = (SwipeRefreshLayout) findViewById(R.id.srlSaved);
-        rvSaved = (RecyclerView) findViewById(R.id.rvSaved);
-        pbSaved = (ContentLoadingProgressBar) findViewById(R.id.pbSaved);
-        tvErrorSaved = (TextView) findViewById(R.id.tvErrorSaved);
-
-        bottom_sheet = (FrameLayout) findViewById(R.id.bottom_sheet);
+        rlvSaved = findViewById(R.id.rlvSaved);
+        srlSaved = findViewById(R.id.srlSaved);
+        rvSaved = findViewById(R.id.rvSaved);
+        pbSaved = findViewById(R.id.pbSaved);
+        tvErrorSaved = findViewById(R.id.tvErrorSaved);
+        bottom_sheet = findViewById(R.id.bottom_sheet);
         slide_up = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_up);
         slide_up.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -550,6 +552,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                     case 3:
                         chosenString = SAVED_STORIES;
                 }
+                Logger.log(LoggingBehavior.APP_EVENTS, "stories_type_popup_click", chosenString);
 
                 if (!chosenString.equalsIgnoreCase(storyType)) {
 //                    private RelativeLayout rlvTop, rlvNew, rlvBest, rlvSaved;
@@ -610,7 +613,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
                             new GetNewsFromDB().execute();
                             break;
                     }
-//                    refreshNews();
                 }
             }
 
@@ -640,22 +642,8 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         } else if(id==android.R.id.home){
             // home button from toolbar clicked
             View dialog_about = LayoutInflater.from(this).inflate(R.layout.dialog_about, null);
-//            ImageView ivGPlus = (ImageView) dialog_about.findViewById(R.id.ivGPlus);
-//            ImageView ivTwitter = (ImageView) dialog_about.findViewById(R.id.ivTwitter);
             Button bnReview = (Button) dialog_about.findViewById(R.id.bnReview);
             TextView tvLegal =(TextView) dialog_about.findViewById(R.id.tvLegal);
-//            ivGPlus.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("")));
-//                }
-//            });
-//            ivTwitter.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("")));
-//                }
-//            });
             bnReview.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -732,8 +720,6 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         } else {
             new GetNewsFromDB().execute();
         }
-//        else
-//            new GetNewsFromDB().execute();
 
     }
 
@@ -801,7 +787,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
      * ASYNCTASKS
      ***********************************/
 
-    class GetTopNewsList extends AsyncTask<Void, Void, Void> {
+    private class GetTopNewsList extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -877,7 +863,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
     }
 
-    class GetNewNewsList extends AsyncTask<Void, Void, Void> {
+    private class GetNewNewsList extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -952,7 +938,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
     }
 
-    class GetBestNewsList extends AsyncTask<Void, Void, Void> {
+    private class GetBestNewsList extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -1027,7 +1013,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
     }
 
-    class GetTopArticle extends AsyncTask<Long, Void, NewsObject> {
+    private class GetTopArticle extends AsyncTask<Long, Void, NewsObject> {
 
         @Override
         protected void onPreExecute() {
@@ -1064,7 +1050,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
     }
 
-    class GetNewArticle extends AsyncTask<Long, Void, NewsObject> {
+    private class GetNewArticle extends AsyncTask<Long, Void, NewsObject> {
 
         @Override
         protected void onPreExecute() {
@@ -1101,7 +1087,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         }
     }
 
-    class GetBestArticle extends AsyncTask<Long, Void, NewsObject> {
+    private class GetBestArticle extends AsyncTask<Long, Void, NewsObject> {
 
         @Override
         protected void onPreExecute() {
@@ -1158,7 +1144,7 @@ public class MainActivity extends AppCompatActivity implements WebViewFragment.O
         this.mClickedArticleType = type;
     }
 
-    class GetNewsFromDB extends AsyncTask<Void, Void, ArrayList<NewsObject>> {
+    private class GetNewsFromDB extends AsyncTask<Void, Void, ArrayList<NewsObject>> {
         @Override
         protected void onPreExecute() {
             if (rlvSaved.getVisibility() == View.GONE)

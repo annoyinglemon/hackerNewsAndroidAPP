@@ -10,4 +10,7 @@
 
     <string name="title_activity_legal">LegalActivity</string>
 
+    <!-- FACEBOOK SDK -->
+    <string name="facebook_app_id">1477891102290157</string>
+
 </resources>
