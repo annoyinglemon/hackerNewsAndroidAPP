@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'key0'
+            keyAlias 'hackernewsreaderkey'
             keyPassword 'annoyinglemon'
-            storeFile file('/Users/kurt.lemond/Documents/projects/hackerNews/hackerNewsAndroidAPP/app_kestore.jks')
+            storeFile file('/Users/kurt.lemond/Documents/projects/hackerNews/hackerNewsAndroidAPP/hackernewsreaderkeystore.jks')
             storePassword 'annoyinglemon'
         }
     }
