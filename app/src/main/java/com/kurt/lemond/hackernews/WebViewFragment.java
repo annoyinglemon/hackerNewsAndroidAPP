@@ -10,11 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,20 +21,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.johnpersano.supertoasts.library.Style;
-import com.github.johnpersano.supertoasts.library.SuperActivityToast;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link WebViewFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link WebViewFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class WebViewFragment extends Fragment {
 
     private Toolbar toolbar;
@@ -55,8 +46,6 @@ public class WebViewFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private NewsObject mArticle;
-
-    private OnFragmentInteractionListener mListener;
 
     public WebViewFragment() {
         // Required empty public constructor
@@ -115,7 +104,8 @@ public class WebViewFragment extends Fragment {
                             if (saveAsHTML()) {
                                 mArticle.setLocalPath(getContext().getApplicationInfo().dataDir + File.separator + "saved_articles" + File.separator + mArticle.getNewsID() + ".mht");
                                 if (databaseAdapter.insertIntoActualExpenses(mArticle) > -1) {
-                                    showToast("Article " + mArticle.getNewsID() + " is successfully saved.");
+                                    Toast.makeText(getActivity(), "Article " + mArticle.getNewsID() + " is successfully saved.", Toast.LENGTH_SHORT).show();
+
                                     ((MainActivity) getContext()).addNewsToList(mArticle);
                                     ((MainActivity) getContext()).setClickedNewsType(MainActivity.SAVED_STORIES);
                                     if (toolbar.getMenu().getItem(0).getItemId() == R.id.action_up) {
@@ -127,27 +117,15 @@ public class WebViewFragment extends Fragment {
                                     }
                                 }
                             } else
-                                showToast("Article " + mArticle.getNewsID() + " is not successfully saved, try again.");
+                            Toast.makeText(getActivity(), "Article " + mArticle.getNewsID() + " is not successfully saved, try again.", Toast.LENGTH_SHORT).show();
                         } else {
-                            showToast("Article " + mArticle.getNewsID() + " already exists.");
+                            Toast.makeText(getActivity(), "Article " + mArticle.getNewsID() + " already exists.", Toast.LENGTH_SHORT).show();
                         }
                         return true;
                     case R.id.action_delete:
                         isUndoClicked = false;
                         final DatabaseAdapter databaseAdapter2 = new DatabaseAdapter(getContext());
-                        SuperActivityToast.create(getActivity(), new Style(),
-                                Style.TYPE_BUTTON)
-                                .setButtonText("UNDO")
-                                .setButtonIconResource(R.drawable.ic_undo)
-                                .setOnButtonClickListener("undo_button", null, onUndoClickListener)
-                                .setButtonTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
-                                .setText("Article deleted")
-                                .setTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
-                                .setDuration(Style.DURATION_SHORT)
-                                .setFrame(Style.FRAME_STANDARD)
-                                .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
-                                .setAnimations(Style.ANIMATIONS_FADE)
-                                .show();
+                                Toast.makeText(getActivity(), "Article deleted", Toast.LENGTH_SHORT).show();
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -193,7 +171,7 @@ public class WebViewFragment extends Fragment {
                         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("URL", mArticle.getNewsURL());
                         clipboard.setPrimaryClip(clip);
-                        showToast("Copied to clipboard");
+                        Toast.makeText(getActivity(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.action_open:
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mArticle.getNewsURL())));
@@ -259,11 +237,11 @@ public class WebViewFragment extends Fragment {
                             }
                         })
                         .setActionTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
-                        .setDuration(Snackbar.LENGTH_INDEFINITE);
+                        .setDuration(BaseTransientBottomBar.LENGTH_INDEFINITE);
                 snackbar.show();
             }else if(mArticle.getLocalPath()!=null && !isNetworkAvailable()){
                 final Snackbar snackbar = Snackbar.make(view, "Oops! Looks like this webpage is unavailable during offline mode.", Snackbar.LENGTH_LONG)
-                        .setDuration(Snackbar.LENGTH_INDEFINITE);
+                        .setDuration(BaseTransientBottomBar.LENGTH_INDEFINITE);
                 snackbar.show();
             }
             super.onReceivedError(view, errorCode, description, failingUrl);
@@ -291,75 +269,9 @@ public class WebViewFragment extends Fragment {
         return mhtml.delete();
     }
 
-    public void showToast(String message){
-        SuperActivityToast.create(getContext(), new Style(), Style.TYPE_STANDARD)
-                .setText(message)
-                .setTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
-                .setDuration(Style.DURATION_SHORT)
-                .setFrame(Style.FRAME_STANDARD)
-                .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
-                .setAnimations(Style.ANIMATIONS_FADE)
-                .show();
-    }
-
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
-    private final SuperActivityToast.OnButtonClickListener onUndoClickListener = new SuperActivityToast.OnButtonClickListener() {
-
-        @Override
-        public void onClick(View view, Parcelable token) {
-            isUndoClicked = true;
-            SuperActivityToast.create(getActivity(), new Style(),
-                    Style.TYPE_STANDARD)
-                    .setText("Article restored")
-                    .setTextColor(ContextCompat.getColor(getContext(), R.color.grey_white_1000))
-                    .setDuration(Style.DURATION_VERY_SHORT)
-                    .setFrame(Style.FRAME_STANDARD)
-                    .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
-                    .setAnimations(Style.ANIMATIONS_FADE)
-                    .show();
-        }
-    };
 }

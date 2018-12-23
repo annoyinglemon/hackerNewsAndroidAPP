@@ -10,12 +10,10 @@
         android:id="@+id/tvArticleTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="marquee"
         android:maxLines="1"
         android:text="This is a sample article.This is a sample article."
         android:textSize="15sp"
-        android:textColor="@color/colorPrimaryDark"
-        fontPath="fonts/Esphimere-Bold.otf"/>
+        android:textColor="@color/colorPrimaryDark"/>
 
     <TextView
         android:id="@+id/tvArticleURL"
@@ -23,7 +21,5 @@
         android:layout_height="wrap_content"
         android:textSize="13sp"
         android:text="www.thearticle.com"
-        android:maxLines="1"
-        android:ellipsize="marquee"
         android:textColor="@color/colorPrimary"/>
 </LinearLayout>
