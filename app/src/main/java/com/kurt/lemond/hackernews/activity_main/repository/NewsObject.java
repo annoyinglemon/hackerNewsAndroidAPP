@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews;
+package com.kurt.lemond.hackernews.activity_main.repository;
 
 import java.io.Serializable;
 

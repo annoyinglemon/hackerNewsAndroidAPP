@@ -23,6 +23,9 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.kurt.lemond.hackernews.activity_main.MainActivity;
+import com.kurt.lemond.hackernews.activity_main.repository.NewsObject;
+import com.kurt.lemond.hackernews.activity_main.fragment_saved_stories.DatabaseAdapter;
 
 import java.io.File;
 

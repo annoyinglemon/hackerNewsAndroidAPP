@@ -1,10 +1,12 @@
-package com.kurt.lemond.hackernews;
+package com.kurt.lemond.hackernews.activity_legal;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.webkit.WebView;
+
+import com.kurt.lemond.hackernews.R;
 
 public class LegalActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews;
+package com.kurt.lemond.hackernews.activity_main;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -18,6 +18,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.kurt.lemond.hackernews.R;
+import com.kurt.lemond.hackernews.Utils;
+import com.kurt.lemond.hackernews.activity_main.repository.NewsObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;

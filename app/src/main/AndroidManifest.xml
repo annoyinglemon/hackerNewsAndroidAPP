@@ -7,15 +7,14 @@
 
     <application
         android:allowBackup="true"
+        android:name=".HackerNewsApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-
         <activity
-            android:name="com.kurt.lemond.hackernews.MainActivity"
+            android:name="com.kurt.lemond.hackernews.activity_main.MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
@@ -26,14 +25,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name="com.kurt.lemond.hackernews.LegalActivity"
+            android:name="com.kurt.lemond.hackernews.activity_legal.LegalActivity"
             android:label="@string/software_notices"
-            android:parentActivityName="com.kurt.lemond.hackernews.MainActivity"
+            android:parentActivityName="com.kurt.lemond.hackernews.activity_main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kurt.lemond.hackernews.MainActivity" />
+                android:value="com.kurt.lemond.hackernews.activity_main.MainActivity" />
         </activity>
     </application>
 

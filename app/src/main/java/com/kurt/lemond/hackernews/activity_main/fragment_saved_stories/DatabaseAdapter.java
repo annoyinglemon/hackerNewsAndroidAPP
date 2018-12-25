@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews;
+package com.kurt.lemond.hackernews.activity_main.fragment_saved_stories;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.kurt.lemond.hackernews.activity_main.repository.NewsObject;
 
 import java.util.ArrayList;
 
