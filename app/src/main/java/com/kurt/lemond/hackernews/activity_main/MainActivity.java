@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews;
+package com.kurt.lemond.hackernews.activity_main;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -27,6 +27,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.kurt.lemond.hackernews.activity_main.fragment_saved_stories.DatabaseAdapter;
+import com.kurt.lemond.hackernews.activity_main.repository.HttpHandler;
+import com.kurt.lemond.hackernews.activity_legal.LegalActivity;
+import com.kurt.lemond.hackernews.activity_main.repository.NewsObject;
+import com.kurt.lemond.hackernews.R;
+import com.kurt.lemond.hackernews.WebViewFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
