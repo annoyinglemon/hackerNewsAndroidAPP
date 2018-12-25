@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews;
+package com.kurt.lemond.hackernews.activity_main;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -6,9 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,14 +17,17 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.facebook.LoggingBehavior;
-import com.facebook.internal.Logger;
-import com.github.johnpersano.supertoasts.library.Style;
-import com.github.johnpersano.supertoasts.library.SuperActivityToast;
+import com.kurt.lemond.hackernews.R;
+import com.kurt.lemond.hackernews.Utils;
+import com.kurt.lemond.hackernews.activity_main.repository.NewsObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import androidx.appcompat.widget.PopupMenu;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Created by Lemon on 10/1/2016.
@@ -98,7 +98,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
             rvCardCase.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Logger.log(LoggingBehavior.APP_EVENTS, "article_open", news.getNewsTitle());
                     if(holder.getAdapterPosition() != newsList.size())
                         ((MainActivity) mContext).openNewsArticle(holder.getAdapterPosition());
                 }
@@ -110,7 +109,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
             tvMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Logger.log(LoggingBehavior.APP_EVENTS, "article_click", "article_popup_click");
                     PopupMenu popup = new PopupMenu(mContext, tvMenu);
                     popup.getMenuInflater()
                             .inflate(R.menu.menu_popup, popup.getMenu());
@@ -128,18 +126,15 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
                                     share.putExtra(Intent.EXTRA_SUBJECT, newsList.get(holder.getAdapterPosition()).getNewsTitle());
                                     share.putExtra(Intent.EXTRA_TEXT, newsList.get(holder.getAdapterPosition()).getNewsURL());
                                     mContext.startActivity(Intent.createChooser(share, "Share"));
-                                    Logger.log(LoggingBehavior.APP_EVENTS, "article_popup_click", "action_share");
                                     return true;
                                 case R.id.action_copy:
                                     ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
                                     ClipData clip = ClipData.newPlainText("URL", newsList.get(holder.getAdapterPosition()).getNewsURL());
                                     clipboard.setPrimaryClip(clip);
-                                    showToast("Copied to clipboard");
-                                    Logger.log(LoggingBehavior.APP_EVENTS, "article_popup_click", "copy_to_clipboard");
+                                    Toast.makeText(mContext, "Copied to clipboard", Toast.LENGTH_SHORT).show();
                                     return true;
                                 case R.id.action_open:
                                     mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(newsList.get(holder.getAdapterPosition()).getNewsURL())));
-                                    Logger.log(LoggingBehavior.APP_EVENTS, "article_popup_click", "open_via_browser");
                                     return true;
                             }
                             return true;
@@ -201,17 +196,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ItemViewHolder
     public void setLoadedAll(boolean loadedAll) {
         isLoadedAll = loadedAll;
         notifyItemChanged(newsList.size() + 1);
-    }
-
-    public void showToast(String message){
-        SuperActivityToast.create(mContext, new Style(), Style.TYPE_STANDARD)
-                .setText(message)
-                .setTextColor(ContextCompat.getColor(mContext, R.color.grey_white_1000))
-                .setDuration(Style.DURATION_SHORT)
-                .setFrame(Style.FRAME_STANDARD)
-                .setColor(ContextCompat.getColor(mContext, R.color.colorPrimary))
-                .setAnimations(Style.ANIMATIONS_FADE)
-                .show();
     }
 
     public boolean isEmpty() {

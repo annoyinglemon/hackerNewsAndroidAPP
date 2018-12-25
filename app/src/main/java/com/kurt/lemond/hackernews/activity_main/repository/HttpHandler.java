@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews;
+package com.kurt.lemond.hackernews.activity_main.repository;
 
 /**
  * Created by kurt_capatan on 10/3/2016.

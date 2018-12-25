@@ -1,9 +1,9 @@
 package com.kurt.lemond.hackernews;
 
-import android.support.v7.widget.PopupMenu;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import androidx.appcompat.widget.PopupMenu;
 
 /**
  * Created by kurt_capatan on 10/13/2016.
