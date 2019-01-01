@@ -6,4 +6,6 @@
     <color name="textColorPrimary">@color/grey_900</color>
     <color name="textColorSecondary">@color/grey_700</color>
 
+    <color name="placeholder_gray">@color/grey_400</color>
+
 </resources>

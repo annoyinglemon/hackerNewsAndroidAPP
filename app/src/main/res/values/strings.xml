@@ -10,6 +10,9 @@
 
     <string name="title_activity_legal">LegalActivity</string>
 
+    <string name="story_author">By %1$s</string>
+    <string name="story_points">%1$d points</string>
+
     <!-- FACEBOOK SDK -->
     <string name="facebook_app_id">1477891102290157</string>
 
