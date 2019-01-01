@@ -4,6 +4,7 @@ package com.kurt.lemond.hackernews.activity_main.injection
 import android.net.ConnectivityManager
 import android.util.Log
 import com.kurt.lemond.hackernews.BuildConfig
+import com.kurt.lemond.hackernews.activity_main.injection.scope.MainActivityScope
 import com.kurt.lemond.hackernews.exception.NoInternetException
 import dagger.Module
 import dagger.Provides
