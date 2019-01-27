@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews.activity_main.repository.pagination.factory
+package com.kurt.lemond.hackernews.activity_main.factory
 
 import com.kurt.lemond.hackernews.activity_main.repository.model.DataWrapper
 import com.kurt.lemond.hackernews.exception.NoInternetException

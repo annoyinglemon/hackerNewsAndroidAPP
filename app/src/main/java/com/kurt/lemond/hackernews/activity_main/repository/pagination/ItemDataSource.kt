@@ -4,7 +4,6 @@ import androidx.paging.PositionalDataSource
 import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
 import com.kurt.lemond.hackernews.activity_main.repository.model.DataWrapper
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 

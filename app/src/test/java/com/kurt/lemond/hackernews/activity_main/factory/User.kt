@@ -1,4 +1,4 @@
-package com.kurt.lemond.hackernews.activity_main.repository.pagination.factory
+package com.kurt.lemond.hackernews.activity_main.factory
 
 class User(var id: Long,
            var userName: String,
