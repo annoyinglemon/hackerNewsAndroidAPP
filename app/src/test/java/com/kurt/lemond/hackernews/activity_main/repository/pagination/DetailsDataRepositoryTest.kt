@@ -1,7 +1,7 @@
 package com.kurt.lemond.hackernews.activity_main.repository.pagination
 
 import com.kurt.lemond.hackernews.activity_main.factory.*
-import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
+import com.kurt.lemond.hackernews.activity_main.repository.DetailsDataRepository
 import com.kurt.lemond.hackernews.activity_main.repository.model.DataWrapper
 import io.reactivex.Single
 import org.junit.Before
@@ -11,24 +11,24 @@ import org.mockito.Mockito
 import java.io.IOException
 
 
-class DataRepositoryTest {
+class DetailsDataRepositoryTest {
 
     private val totalIdCount = 50
 
     @Mock
-    private lateinit var dataRepository: DataRepository<*>
+    private lateinit var detailsDataRepository: DetailsDataRepository<*>
 
     @Before
     fun setup() {
-        dataRepository = Mockito.mock(DataRepository::class.java, Mockito.CALLS_REAL_METHODS)
+        detailsDataRepository = Mockito.mock(DetailsDataRepository::class.java, Mockito.CALLS_REAL_METHODS)
     }
 
     @Test
     fun getIds_success() {
         val randomIdList = createRandomLongList(totalIdCount)
-        Mockito.`when`(dataRepository.loadIds()).thenReturn(Single.just(randomIdList))
+        Mockito.`when`(detailsDataRepository.loadIds()).thenReturn(Single.just(randomIdList))
 
-        val testObserver = dataRepository.getIds().test()
+        val testObserver = detailsDataRepository.getIds().test()
 
         testObserver.assertSubscribed()
         testObserver.assertComplete()
@@ -42,9 +42,9 @@ class DataRepositoryTest {
     @Test
     fun getIds_failed() {
         val errorMessage = createRandomString()
-        Mockito.`when`(dataRepository.loadIds()).thenReturn(Single.error(IOException(errorMessage)))
+        Mockito.`when`(detailsDataRepository.loadIds()).thenReturn(Single.error(IOException(errorMessage)))
 
-        val testObserver = dataRepository.getIds().test()
+        val testObserver = detailsDataRepository.getIds().test()
 
         testObserver.assertSubscribed()
         testObserver.assertComplete()
@@ -58,16 +58,16 @@ class DataRepositoryTest {
     @Test
     fun getIds_success_then_getDetails_all_success() {
         val randomIdList = createRandomLongList(totalIdCount)
-        Mockito.`when`(dataRepository.loadIds()).thenReturn(Single.just(randomIdList))
+        Mockito.`when`(detailsDataRepository.loadIds()).thenReturn(Single.just(randomIdList))
 
         val randomUserList = ArrayList<User>()
         for(i in 0 until totalIdCount) {
             val randomUser = createRandomUser(randomIdList[i])
             randomUserList.add(randomUser)
-            Mockito.`when`(dataRepository.loadDetails(randomIdList[i])).thenReturn(Single.just(randomUser))
+            Mockito.`when`(detailsDataRepository.loadDetails(randomIdList[i])).thenReturn(Single.just(randomUser))
         }
 
-        val testObserver = dataRepository.getIds().test()
+        val testObserver = detailsDataRepository.getIds().test()
 
         testObserver.assertSubscribed()
         testObserver.assertComplete()
@@ -80,7 +80,7 @@ class DataRepositoryTest {
         val detailsSinglesList = ArrayList<Single<out DataWrapper<out Any?>>>()
 
         for(i in 0 until totalIdCount) {
-            val detailsSingle = dataRepository.getDetails(randomIdList[i])
+            val detailsSingle = detailsDataRepository.getDetails(randomIdList[i])
             detailsSinglesList.add(detailsSingle)
         }
 
@@ -100,17 +100,17 @@ class DataRepositoryTest {
     @Test
     fun getIds_success_then_getDetails_all_failed() {
         val randomIdList = createRandomLongList(totalIdCount)
-        Mockito.`when`(dataRepository.loadIds()).thenReturn(Single.just(randomIdList))
+        Mockito.`when`(detailsDataRepository.loadIds()).thenReturn(Single.just(randomIdList))
 
         val errorMessages = ArrayList<String>()
         for(i in 0 until totalIdCount) {
             val errorMessage = createRandomString()
             errorMessages.add(errorMessage)
 
-            Mockito.`when`(dataRepository.loadDetails(randomIdList[i])).thenReturn(Single.error(RuntimeException(errorMessage)))
+            Mockito.`when`(detailsDataRepository.loadDetails(randomIdList[i])).thenReturn(Single.error(RuntimeException(errorMessage)))
         }
 
-        val testObserver = dataRepository.getIds().test()
+        val testObserver = detailsDataRepository.getIds().test()
 
         testObserver.assertSubscribed()
         testObserver.assertComplete()
@@ -123,7 +123,7 @@ class DataRepositoryTest {
         val detailsSinglesList = ArrayList<Single<out DataWrapper<out Any?>>>()
 
         for(i in 0 until totalIdCount) {
-            val detailsSingle = dataRepository.getDetails(randomIdList[i])
+            val detailsSingle = detailsDataRepository.getDetails(randomIdList[i])
             detailsSinglesList.add(detailsSingle)
         }
 
@@ -143,7 +143,7 @@ class DataRepositoryTest {
     @Test
     fun getIds_success_then_getDetails_mix_success_failed() {
         val randomIdList = createRandomLongList(totalIdCount)
-        Mockito.`when`(dataRepository.loadIds()).thenReturn(Single.just(randomIdList))
+        Mockito.`when`(detailsDataRepository.loadIds()).thenReturn(Single.just(randomIdList))
 
         val mockResultList = ArrayList<Any>()
         for(i in 0 until totalIdCount) {
@@ -161,10 +161,10 @@ class DataRepositoryTest {
                 Single.error(RuntimeException(errorMessage))
             }
 
-            Mockito.`when`(dataRepository.loadDetails(randomIdList[i])).thenReturn(mockSingleResult)
+            Mockito.`when`(detailsDataRepository.loadDetails(randomIdList[i])).thenReturn(mockSingleResult)
         }
 
-        val testObserver = dataRepository.getIds().test()
+        val testObserver = detailsDataRepository.getIds().test()
 
         testObserver.assertSubscribed()
         testObserver.assertComplete()
@@ -177,7 +177,7 @@ class DataRepositoryTest {
         val detailsSinglesList = ArrayList<Single<out DataWrapper<out Any?>>>()
 
         for(i in 0 until totalIdCount) {
-            val detailsSingle = dataRepository.getDetails(randomIdList[i])
+            val detailsSingle = detailsDataRepository.getDetails(randomIdList[i])
             detailsSinglesList.add(detailsSingle)
         }
 

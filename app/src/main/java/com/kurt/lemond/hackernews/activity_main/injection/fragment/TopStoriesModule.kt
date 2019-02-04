@@ -2,8 +2,9 @@ package com.kurt.lemond.hackernews.activity_main.injection.fragment
 
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.qualifier.TopStoriesPage
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.scope.TopStoriesFragmentScope
-import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
-import com.kurt.lemond.hackernews.activity_main.repository.fragment.TopStoriesRepository
+import com.kurt.lemond.hackernews.activity_main.repository.DetailsDataRepository
+import com.kurt.lemond.hackernews.activity_main.repository.IdsDataRepository
+import com.kurt.lemond.hackernews.activity_main.repository.fragment.top_stories.TopStoryIdsRepository
 import com.kurt.lemond.hackernews.activity_main.repository.model.StoryDetails
 import com.kurt.lemond.hackernews.activity_main.repository.retrofit.StoryDetailsService
 import com.kurt.lemond.hackernews.activity_main.repository.retrofit.fragment.TopStoriesService
@@ -25,22 +26,15 @@ class TopStoriesModule {
     @Provides
     @TopStoriesFragmentScope
     @TopStoriesPage
-    fun provideStoryDetailsService(retrofit: Retrofit): StoryDetailsService {
-        return retrofit.create(StoryDetailsService::class.java)
+    fun provideStoriesRepository(topStoriesService: TopStoriesService): IdsDataRepository {
+        return TopStoryIdsRepository(topStoriesService)
     }
 
     @Provides
     @TopStoriesFragmentScope
     @TopStoriesPage
-    fun provideStoriesRepository(topStoriesService: TopStoriesService, @TopStoriesPage storyDetailsService: StoryDetailsService): DataRepository<StoryDetails> {
-        return TopStoriesRepository(topStoriesService, storyDetailsService)
-    }
-
-    @Provides
-    @TopStoriesFragmentScope
-    @TopStoriesPage
-    fun provideViewModelFactory(@TopStoriesPage storyRepository: DataRepository<StoryDetails>): StoriesFragmentViewModelFactory {
-        return StoriesFragmentViewModelFactory(storyRepository)
+    fun provideViewModelFactory(@TopStoriesPage idsDataRepository: IdsDataRepository, detailsDataRepository: DetailsDataRepository<StoryDetails>): StoriesFragmentViewModelFactory {
+        return StoriesFragmentViewModelFactory(idsDataRepository, detailsDataRepository)
     }
 
 }

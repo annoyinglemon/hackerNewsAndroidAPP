@@ -44,7 +44,7 @@ class ItemDataSourceTest {
 
     @Test
     fun failed_to_load_all_ids_on_load_initial() {
-        val userDataReposFailed = UserDataRepos_Both_Failed()
+        val userDataReposFailed = UserDetailsDataRepos_Both_Failed()
         val itemDataSource = ItemDataSource(userDataReposFailed, disposableCollector)
 
         itemDataSource.loadInitial(loadInitialParams, loadInitialCallback)
@@ -54,7 +54,7 @@ class ItemDataSourceTest {
 
     @Test
     fun failed_to_load_due_to_no_network_all_ids_on_load_initial() {
-        val userDataReposNoNetwork = UserDataRepos_Both_NoNetwork()
+        val userDataReposNoNetwork = UserDetailsDataRepos_Both_NoNetwork()
 
         val itemDataSource = ItemDataSource(userDataReposNoNetwork, disposableCollector)
 
@@ -65,7 +65,7 @@ class ItemDataSourceTest {
 
     @Test
     fun loaded_all_ids_on_load_initial() {
-        val userDataRepo = UserDataRepo_Both_Success()
+        val userDataRepo = UserDetailsDataRepo_Both_Success()
 
         val itemDataSource = ItemDataSource(userDataRepo, disposableCollector)
 
@@ -74,7 +74,7 @@ class ItemDataSourceTest {
 
     @Test
     fun loaded_all_ids_on_load_initial_then_continue_loading_by_page() {
-        val userDataRepo = UserDataRepo_Both_Success()
+        val userDataRepo = UserDetailsDataRepo_Both_Success()
 
         val itemDataSource = ItemDataSource(userDataRepo, disposableCollector)
 
@@ -91,7 +91,7 @@ class ItemDataSourceTest {
 
     @Test
     fun loaded_all_ids_on_load_initial_then_continue_loading_by_page_even_with_random_errors() {
-        val userDataRepo = UserDataRepo_LoadIds_Success_LoadDetails_Mixed()
+        val userDataRepo = UserDetailsDataRepo_LoadIds_Success_LoadDetails_Mixed()
 
         val itemDataSource = ItemDataSource(userDataRepo, disposableCollector)
 
@@ -107,7 +107,7 @@ class ItemDataSourceTest {
     }
 
 
-    private fun testInitialLoad(userDataRepo: UserDataRepo_Both_Success, itemDataSource: ItemDataSource<User>) {
+    private fun testInitialLoad(userDataRepo: UserDetailsDataRepo_Both_Success, itemDataSource: ItemDataSource<User>) {
         itemDataSource.loadInitial(loadInitialParams, loadInitialCallback)
 
         argumentCaptor<List<DataWrapper<User>>>().apply {
@@ -130,7 +130,7 @@ class ItemDataSourceTest {
         }
     }
 
-    private fun testInitialLoad_withRandomErrors(userDataRepo: UserDataRepo_LoadIds_Success_LoadDetails_Mixed, itemDataSource: ItemDataSource<User>) {
+    private fun testInitialLoad_withRandomErrors(userDataRepo: UserDetailsDataRepo_LoadIds_Success_LoadDetails_Mixed, itemDataSource: ItemDataSource<User>) {
         itemDataSource.loadInitial(loadInitialParams, loadInitialCallback)
 
         argumentCaptor<List<DataWrapper<User>>>().apply {
@@ -172,7 +172,7 @@ class ItemDataSourceTest {
     }
 
     private fun testLoadByStartPosition(startPosition: Int, loadRangeCallCount: Int,
-                                        userDataRepo: UserDataRepo_Both_Success, itemDataSource: ItemDataSource<User>) {
+                                        userDataRepo: UserDetailsDataRepo_Both_Success, itemDataSource: ItemDataSource<User>) {
 
         val loadRangeParams = PositionalDataSource.LoadRangeParams(startPosition, pageSize)
         itemDataSource.loadRange(loadRangeParams, loadRangeCallback)
@@ -204,8 +204,8 @@ class ItemDataSourceTest {
     }
 
     private fun testLoadByStartPosition_withRandomErrors(startPosition: Int, loadRangeCallCount: Int,
-                                        userDataRepo: UserDataRepo_LoadIds_Success_LoadDetails_Mixed,
-                                        itemDataSource: ItemDataSource<User>) {
+                                                         userDataRepo: UserDetailsDataRepo_LoadIds_Success_LoadDetails_Mixed,
+                                                         itemDataSource: ItemDataSource<User>) {
 
         val loadRangeParams = PositionalDataSource.LoadRangeParams(startPosition, pageSize)
         itemDataSource.loadRange(loadRangeParams, loadRangeCallback)

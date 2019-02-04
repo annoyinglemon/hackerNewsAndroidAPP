@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.paging.PagedList
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -32,7 +33,6 @@ class StoriesAdapter: PagedListAdapter<DataWrapper<StoryDetails>, StoriesAdapter
         } else {
             holder.itemStoryBinding.shimmerContainer.stopShimmerAnimation()
         }
-
     }
 
     class StoryViewHolder(val itemStoryBinding: ItemStoryBinding): RecyclerView.ViewHolder(itemStoryBinding.root)

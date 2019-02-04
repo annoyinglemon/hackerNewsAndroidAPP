@@ -1,6 +1,6 @@
 package com.kurt.lemond.hackernews.activity_main.factory
 
-import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
+import com.kurt.lemond.hackernews.activity_main.repository.DetailsDataRepository
 import com.kurt.lemond.hackernews.exception.NoInternetException
 import io.reactivex.Single
 import kotlin.RuntimeException
@@ -30,7 +30,7 @@ private fun searchUserOrTupleById(anyList: List<Any>, id: Long): Any {
 class ErrorMessageIdTuple(val id: Long, val errorMessage: String)
 
 
-class UserDataRepo_Both_Success: DataRepository<User>() {
+class UserDetailsDataRepo_Both_Success: DetailsDataRepository<User>() {
 
     val randomIdList = createRandomLongList(totalIdCount)
 
@@ -46,13 +46,13 @@ class UserDataRepo_Both_Success: DataRepository<User>() {
         return Single.just(randomIdList)
     }
 
-    override fun loadDetails(storyId: Long): Single<User> {
-        return Single.just(searchUserById(randomUserList, storyId))
+    override fun loadDetails(dataId: Long): Single<User> {
+        return Single.just(searchUserById(randomUserList, dataId))
     }
 
 }
 
-class UserDataRepo_LoadIds_Success_LoadDetails_Mixed: DataRepository<User>() {
+class UserDetailsDataRepo_LoadIds_Success_LoadDetails_Mixed: DetailsDataRepository<User>() {
 
     val randomIdList = createRandomLongList(totalIdCount)
 
@@ -72,9 +72,9 @@ class UserDataRepo_LoadIds_Success_LoadDetails_Mixed: DataRepository<User>() {
         return Single.just(randomIdList)
     }
 
-    override fun loadDetails(storyId: Long): Single<User> {
+    override fun loadDetails(dataId: Long): Single<User> {
 
-        val any = searchUserOrTupleById(randomAnyList, storyId)
+        val any = searchUserOrTupleById(randomAnyList, dataId)
         if (any is User) {
             return Single.just(any)
 
@@ -86,19 +86,19 @@ class UserDataRepo_LoadIds_Success_LoadDetails_Mixed: DataRepository<User>() {
     }
 }
 
-class UserDataRepos_Both_NoNetwork: DataRepository<User>() {
+class UserDetailsDataRepos_Both_NoNetwork: DetailsDataRepository<User>() {
 
     override fun loadIds(): Single<List<Long>> {
         return Single.error(NoInternetException())
     }
 
-    override fun loadDetails(storyId: Long): Single<User> {
+    override fun loadDetails(dataId: Long): Single<User> {
         return Single.error(NoInternetException())
     }
 
 }
 
-class UserDataRepos_Both_Failed: DataRepository<User>() {
+class UserDetailsDataRepos_Both_Failed: DetailsDataRepository<User>() {
 
     val errorMessageLoadId = createRandomString()
 
@@ -106,7 +106,7 @@ class UserDataRepos_Both_Failed: DataRepository<User>() {
         return Single.error(RuntimeException(errorMessageLoadId))
     }
 
-    override fun loadDetails(storyId: Long): Single<User> {
+    override fun loadDetails(dataId: Long): Single<User> {
         return Single.error(RuntimeException(errorMessageLoadId))
     }
 
