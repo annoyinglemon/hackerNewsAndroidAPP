@@ -1,28 +1,29 @@
 package com.kurt.lemond.hackernews.activity_main.ui.viewmodel
 
-import android.view.View
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.kurt.lemond.hackernews.activity_main.repository.StoriesRepository
-import com.kurt.lemond.hackernews.activity_main.repository.pagination.StoriesDataSourceFactory
+import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
+import com.kurt.lemond.hackernews.activity_main.repository.model.DataWrapper
+import com.kurt.lemond.hackernews.activity_main.repository.model.StoryDetails
+import com.kurt.lemond.hackernews.activity_main.repository.pagination.ItemDataSource
+import com.kurt.lemond.hackernews.activity_main.repository.pagination.ItemDataSourceFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 
 
-class StoriesViewModel(storiesRepository: StoriesRepository): ViewModel() {
+class StoriesViewModel(dataRepository: DataRepository<StoryDetails>): ViewModel() {
 
     private val disposableCollector = CompositeDisposable()
 
-    val onFetchError = MutableLiveData<Throwable>()
+    val fetchIdListState = MutableLiveData<DataWrapper.State>()
+
     val swipeRefreshLoadingVisibility = MutableLiveData<Int>()
 
-    private val errorConsumer = Consumer<Throwable> {
-        onFetchError.value = it
-    }
-
-    private val bestStoriesDataSourceFactory = StoriesDataSourceFactory(storiesRepository, errorConsumer, disposableCollector)
+    private val bestStoriesDataSourceFactory = ItemDataSourceFactory(dataRepository, disposableCollector)
     private val bestStoriesDataSource =  bestStoriesDataSourceFactory.create()
 
     private val config = PagedList.Config.Builder()
@@ -34,14 +35,16 @@ class StoriesViewModel(storiesRepository: StoriesRepository): ViewModel() {
     val bestStoriesList = LivePagedListBuilder(bestStoriesDataSourceFactory, config).build()
 
     init {
-        // this does not work!!
-        storiesRepository.getStoryIds()
-                .doOnSubscribe {
-                    swipeRefreshLoadingVisibility.value = View.VISIBLE
-                }
-                .doOnSuccess {
-                    swipeRefreshLoadingVisibility.value = View.GONE
-                }
+        if (bestStoriesDataSource is ItemDataSource) {
+            val disposable = bestStoriesDataSource.itemIdsStateObservable
+                    .observeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        Log.d("StoriesViewModel", "fetchIdListState: $it")
+                        fetchIdListState.value = it
+                    }
+            disposableCollector.add(disposable)
+        }
     }
 
     fun onSwipeToRefresh() {

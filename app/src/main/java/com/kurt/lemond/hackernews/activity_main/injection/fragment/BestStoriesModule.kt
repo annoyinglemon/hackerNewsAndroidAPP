@@ -4,12 +4,14 @@ import com.kurt.lemond.hackernews.activity_main.repository.retrofit.fragment.Bes
 import com.kurt.lemond.hackernews.activity_main.ui.viewmodel.StoriesFragmentViewModelFactory
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.qualifier.BestStoriesPage
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.scope.BestStoriesFragmentScope
-import com.kurt.lemond.hackernews.activity_main.repository.StoriesRepository
+import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
 import com.kurt.lemond.hackernews.activity_main.repository.fragment.BestStoriesRepository
+import com.kurt.lemond.hackernews.activity_main.repository.model.StoryDetails
 import com.kurt.lemond.hackernews.activity_main.repository.retrofit.StoryDetailsService
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
+
 
 @Module
 class BestStoriesModule {
@@ -30,15 +32,15 @@ class BestStoriesModule {
     @Provides
     @BestStoriesFragmentScope
     @BestStoriesPage
-    fun provideStoriesRepository(bestStoriesService: BestStoriesService, @BestStoriesPage storyDetailsService: StoryDetailsService): StoriesRepository {
+    fun provideStoriesRepository(bestStoriesService: BestStoriesService, @BestStoriesPage storyDetailsService: StoryDetailsService): DataRepository<StoryDetails> {
         return BestStoriesRepository(bestStoriesService, storyDetailsService)
     }
 
     @Provides
     @BestStoriesFragmentScope
     @BestStoriesPage
-    fun provideViewModelFactory(@BestStoriesPage storiesRepository: StoriesRepository): StoriesFragmentViewModelFactory {
-        return StoriesFragmentViewModelFactory(storiesRepository)
+    fun provideViewModelFactory(@BestStoriesPage storyRepository: DataRepository<StoryDetails>): StoriesFragmentViewModelFactory {
+        return StoriesFragmentViewModelFactory(storyRepository)
     }
 
 }

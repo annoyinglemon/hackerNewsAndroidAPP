@@ -15,5 +15,7 @@
 
     <!-- FACEBOOK SDK -->
     <string name="facebook_app_id">1477891102290157</string>
+    <string name="item_story_details_error">We could not retrieve the story\'s details.</string>
+    <string name="item_error_details_label">Details:</string>
 
 </resources>

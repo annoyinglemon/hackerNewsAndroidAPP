@@ -2,14 +2,16 @@ package com.kurt.lemond.hackernews.activity_main.injection.fragment
 
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.qualifier.TopStoriesPage
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.scope.TopStoriesFragmentScope
-import com.kurt.lemond.hackernews.activity_main.repository.StoriesRepository
+import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
 import com.kurt.lemond.hackernews.activity_main.repository.fragment.TopStoriesRepository
+import com.kurt.lemond.hackernews.activity_main.repository.model.StoryDetails
 import com.kurt.lemond.hackernews.activity_main.repository.retrofit.StoryDetailsService
 import com.kurt.lemond.hackernews.activity_main.repository.retrofit.fragment.TopStoriesService
 import com.kurt.lemond.hackernews.activity_main.ui.viewmodel.StoriesFragmentViewModelFactory
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
+
 
 @Module
 class TopStoriesModule {
@@ -30,15 +32,15 @@ class TopStoriesModule {
     @Provides
     @TopStoriesFragmentScope
     @TopStoriesPage
-    fun provideStoriesRepository(topStoriesService: TopStoriesService, @TopStoriesPage storyDetailsService: StoryDetailsService): StoriesRepository {
+    fun provideStoriesRepository(topStoriesService: TopStoriesService, @TopStoriesPage storyDetailsService: StoryDetailsService): DataRepository<StoryDetails> {
         return TopStoriesRepository(topStoriesService, storyDetailsService)
     }
 
     @Provides
     @TopStoriesFragmentScope
     @TopStoriesPage
-    fun provideViewModelFactory(@TopStoriesPage storiesRepository: StoriesRepository): StoriesFragmentViewModelFactory {
-        return StoriesFragmentViewModelFactory(storiesRepository)
+    fun provideViewModelFactory(@TopStoriesPage storyRepository: DataRepository<StoryDetails>): StoriesFragmentViewModelFactory {
+        return StoriesFragmentViewModelFactory(storyRepository)
     }
 
 }
