@@ -9,7 +9,7 @@ import dagger.android.ContributesAndroidInjector
 @Module
 abstract class ActivityBinderModule {
 
-    @ContributesAndroidInjector(modules = [RetrofitModule::class, MainFragmentsBinderModule:: class])
+    @ContributesAndroidInjector(modules = [RetrofitModule::class, StoryDetailsModule::class, MainFragmentsBinderModule:: class])
     @MainActivityScope
     abstract fun bindMainActivity(): MainActivity
 

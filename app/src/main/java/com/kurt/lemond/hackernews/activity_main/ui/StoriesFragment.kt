@@ -1,7 +1,6 @@
 package com.kurt.lemond.hackernews.activity_main.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,72 +16,60 @@ import com.kurt.lemond.hackernews.R
 import com.kurt.lemond.hackernews.activity_main.repository.model.DataWrapper
 import com.kurt.lemond.hackernews.activity_main.ui.viewmodel.StoriesViewModel
 import com.kurt.lemond.hackernews.databinding.FragmentStoriesBinding
-import io.reactivex.disposables.CompositeDisposable
+
 
 abstract class StoriesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var fragmentStoriesBinding: FragmentStoriesBinding
     private lateinit var storiesAdapter: StoriesAdapter
     private lateinit var viewModel: StoriesViewModel
-    private val disposableCollector = CompositeDisposable()
 
-    private var errorSnackbar: Snackbar? = null
+    private var errorSnackBar: Snackbar? = null
 
-    override fun onDetach() {
-        disposableCollector.clear()
-        super.onDetach()
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentStoriesBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_stories, container, false)
+
         fragmentStoriesBinding.swipeRefreshStories.setOnRefreshListener(this)
+        fragmentStoriesBinding.swipeRefreshStories.isRefreshing = true
 
         viewModel = initializeStoriesViewModel()
-
         storiesAdapter = StoriesAdapter()
 
         fragmentStoriesBinding.recyclerViewStories.layoutManager = LinearLayoutManager(activity)
         fragmentStoriesBinding.recyclerViewStories.adapter = storiesAdapter
         fragmentStoriesBinding.recyclerViewStories.addItemDecoration(DividerItemDecoration(activity, VERTICAL))
 
-        viewModel.bestStoriesList.observe(this, Observer { pagedList ->
-            storiesAdapter.submitList(pagedList)
-            Log.d("StoriesFragment", "pagedList.size: ${pagedList.size}")
-        })
-
-        viewModel.swipeRefreshLoadingVisibility.observe(this, Observer { visibility ->
-            fragmentStoriesBinding.swipeRefreshStories.isRefreshing = (visibility == View.VISIBLE)
-        })
-
-        viewModel.fetchIdListState.observe(this, Observer { state ->
-            Log.d("StoriesFragment", "fetchIdListState: $state")
-
-            when (state) {
-                DataWrapper.State.NO_NETWORK -> {
-
-                    if (errorSnackbar == null) {
-                        errorSnackbar = Snackbar.make(fragmentStoriesBinding.root, "No Network", Snackbar.LENGTH_INDEFINITE)
-                    }
-                    errorSnackbar?.setText("No Network")
-                    errorSnackbar?.show()
+        viewModel.idListData.observe(this, Observer { idListDataWrapper ->
+            if (idListDataWrapper.getState() == DataWrapper.State.SUCCESS) {
+                idListDataWrapper.data?.let {
+                    refreshStoriesList(idListDataWrapper.data!!)
                 }
-
-                DataWrapper.State.ERROR -> {
-                    if (errorSnackbar == null) {
-                        errorSnackbar = Snackbar.make(fragmentStoriesBinding.root, "Error occurred", Snackbar.LENGTH_INDEFINITE)
-                    }
-                    errorSnackbar?.setText("Error occurred")
-                    errorSnackbar?.show()
+                errorSnackBar?.dismiss()
+            } else {
+                idListDataWrapper.errorMessage?.let {
+                    errorSnackBar = Snackbar.make(activity!!.findViewById(android.R.id.content), it, Snackbar.LENGTH_LONG)
+                    errorSnackBar?.show()
                 }
-                else -> errorSnackbar?.dismiss()
+                fragmentStoriesBinding.swipeRefreshStories.isRefreshing = false
             }
         })
+
+        viewModel.fetchStoryIds()
 
         return fragmentStoriesBinding.root
     }
 
     override fun onRefresh() {
-        viewModel.onSwipeToRefresh()
+        viewModel.fetchStoryIds()
+    }
+
+    private fun refreshStoriesList(storyIds: List<Long>) {
+        val pageListLiveData = viewModel.initializeStoryPagedListListData(storyIds)
+        pageListLiveData.observe(this, Observer {pagedList ->
+            storiesAdapter.submitList(pagedList)
+            fragmentStoriesBinding.swipeRefreshStories.isRefreshing = false
+        })
     }
 
     abstract fun initializeStoriesViewModel(): StoriesViewModel

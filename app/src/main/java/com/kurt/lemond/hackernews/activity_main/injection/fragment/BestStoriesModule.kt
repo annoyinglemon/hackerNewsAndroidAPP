@@ -4,10 +4,10 @@ import com.kurt.lemond.hackernews.activity_main.repository.retrofit.fragment.Bes
 import com.kurt.lemond.hackernews.activity_main.ui.viewmodel.StoriesFragmentViewModelFactory
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.qualifier.BestStoriesPage
 import com.kurt.lemond.hackernews.activity_main.injection.fragment.scope.BestStoriesFragmentScope
-import com.kurt.lemond.hackernews.activity_main.repository.DataRepository
-import com.kurt.lemond.hackernews.activity_main.repository.fragment.BestStoriesRepository
+import com.kurt.lemond.hackernews.activity_main.repository.DetailsDataRepository
+import com.kurt.lemond.hackernews.activity_main.repository.IdsDataRepository
+import com.kurt.lemond.hackernews.activity_main.repository.fragment.best_stories.BestStoryIdsRepository
 import com.kurt.lemond.hackernews.activity_main.repository.model.StoryDetails
-import com.kurt.lemond.hackernews.activity_main.repository.retrofit.StoryDetailsService
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
@@ -25,22 +25,15 @@ class BestStoriesModule {
     @Provides
     @BestStoriesFragmentScope
     @BestStoriesPage
-    fun provideStoryDetailsService(retrofit: Retrofit): StoryDetailsService {
-        return retrofit.create(StoryDetailsService::class.java)
+    fun provideStoryIdsRepository(bestStoriesService: BestStoriesService): IdsDataRepository {
+        return BestStoryIdsRepository(bestStoriesService)
     }
 
     @Provides
     @BestStoriesFragmentScope
     @BestStoriesPage
-    fun provideStoriesRepository(bestStoriesService: BestStoriesService, @BestStoriesPage storyDetailsService: StoryDetailsService): DataRepository<StoryDetails> {
-        return BestStoriesRepository(bestStoriesService, storyDetailsService)
-    }
-
-    @Provides
-    @BestStoriesFragmentScope
-    @BestStoriesPage
-    fun provideViewModelFactory(@BestStoriesPage storyRepository: DataRepository<StoryDetails>): StoriesFragmentViewModelFactory {
-        return StoriesFragmentViewModelFactory(storyRepository)
+    fun provideViewModelFactory(@BestStoriesPage idsDataRepository: IdsDataRepository, storyRepositoryDetails: DetailsDataRepository<StoryDetails>): StoriesFragmentViewModelFactory {
+        return StoriesFragmentViewModelFactory(idsDataRepository, storyRepositoryDetails)
     }
 
 }
